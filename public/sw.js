@@ -50,7 +50,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Static assets — cache-first
-  if (url.pathname.startsWith("/_next/static/")) {
+  if (url.pathname.startsWith("/js/") || url.pathname.startsWith("/css/") || url.pathname.startsWith("/icons/") || url.pathname.startsWith("/build/")) {
     event.respondWith(
       caches.match(request).then((cached) => cached || fetch(request).then((res) => {
         const clone = res.clone()

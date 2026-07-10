@@ -4,7 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ?? 'Cadical Tech' }}</title>
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#1565C0">
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192.png') }}">
 
     <script src="{{ asset('js/cart.js') }}"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -99,6 +102,14 @@
             Livewire.hook('morph.updated', renderIcons);
             Livewire.hook('commit', ({ succeed }) => succeed(() => renderIcons()));
         });
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('{{ asset('sw.js') }}').catch(() => {});
+            });
+        }
     </script>
 
     @livewireScripts

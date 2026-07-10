@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Technician;
 
+use App\Events\ServiceJobStatusUpdated;
 use App\Models\ServiceJob;
 use App\Models\TechnicianProfile;
 use Livewire\Attributes\Locked;
@@ -62,9 +63,9 @@ class JobsBoard extends Component
 
     private function updateJob(int $jobId, string $status, array $extra = []): void
     {
-        ServiceJob::where('technician_id', $this->technicianId)
-            ->where('id', $jobId)
-            ->update(array_merge(['status' => $status], $extra));
+        $job = ServiceJob::where('technician_id', $this->technicianId)->findOrFail($jobId);
+        $job->update(array_merge(['status' => $status], $extra));
+        ServiceJobStatusUpdated::fire($job);
 
         $this->dispatch('cart-toast', message: 'Job updated');
     }

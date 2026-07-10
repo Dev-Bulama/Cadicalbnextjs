@@ -16,6 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureRole::class,
         ]);
+
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+
+        $middleware->api(prepend: [
+            'throttle:api',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

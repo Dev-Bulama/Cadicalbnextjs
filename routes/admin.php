@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\CrmController;
+use App\Http\Controllers\Admin\CrmOAuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,8 @@ Route::middleware(['auth', 'role:'.User::ROLE_SUPER_ADMIN.','.User::ROLE_ADMIN])
     Route::get('/maintenance', fn () => view('admin.maintenance'))->name('maintenance');
     Route::get('/services', fn () => view('admin.services'))->name('services');
     Route::get('/integrations/crm', [CrmController::class, 'index'])->name('integrations.crm');
+    Route::get('/integrations/crm/zoho/authorize', [CrmOAuthController::class, 'authorize'])->name('integrations.crm.zoho.authorize');
+    Route::get('/integrations/crm/zoho/callback', [CrmOAuthController::class, 'callback'])->name('integrations.crm.zoho.callback');
     Route::get('/tracking', fn () => view('admin.tracking'))->name('tracking');
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
     Route::get('/audit-logs', fn () => view('admin.audit-logs'))->name('audit-logs');

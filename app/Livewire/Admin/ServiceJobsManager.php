@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Events\ServiceJobStatusUpdated;
 use App\Models\ServiceJob;
 use App\Models\TechnicianProfile;
 use Livewire\Component;
@@ -24,17 +25,21 @@ class ServiceJobsManager extends Component
 
     public function assignTechnician(int $jobId, int $technicianId): void
     {
-        ServiceJob::whereKey($jobId)->update([
+        $job = ServiceJob::findOrFail($jobId);
+        $job->update([
             'technician_id' => $technicianId,
             'status' => ServiceJob::STATUS_ASSIGNED,
         ]);
+        ServiceJobStatusUpdated::fire($job->fresh());
         $this->assigningId = null;
         $this->dispatch('cart-toast', message: 'Technician assigned');
     }
 
     public function updateStatus(int $id, string $status): void
     {
-        ServiceJob::whereKey($id)->update(['status' => $status]);
+        $job = ServiceJob::findOrFail($id);
+        $job->update(['status' => $status]);
+        ServiceJobStatusUpdated::fire($job);
         $this->dispatch('cart-toast', message: 'Job status updated');
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Events\OrderTrackingUpdated;
 use App\Models\Order;
 use Livewire\Component;
 
@@ -23,11 +24,12 @@ class TrackingManager extends Component
 
     public function addEvent(int $orderId, string $status, string $message, string $location = ''): void
     {
-        Order::findOrFail($orderId)->trackingEvents()->create([
+        $event = Order::findOrFail($orderId)->trackingEvents()->create([
             'status' => $status,
             'message' => $message,
             'location' => $location !== '' ? $location : null,
         ]);
+        OrderTrackingUpdated::fire($event);
         $this->dispatch('cart-toast', message: 'Tracking event added');
     }
 

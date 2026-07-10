@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Events\OrderTrackingUpdated;
 use App\Models\Order;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -35,10 +36,11 @@ class OrdersManager extends Component
     {
         $order = Order::findOrFail($id);
         $order->update(['status' => $status]);
-        $order->trackingEvents()->create([
+        $event = $order->trackingEvents()->create([
             'status' => $status,
             'message' => 'Status updated to '.$status.' by admin',
         ]);
+        OrderTrackingUpdated::fire($event);
         $this->dispatch('cart-toast', message: 'Order status updated');
     }
 
