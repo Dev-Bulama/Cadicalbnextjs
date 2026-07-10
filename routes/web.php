@@ -51,11 +51,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', fn () => redirect(request()->user()->redirectPath()))->name('dashboard');
 });
 
-// ── Role-gated portal roots (full pages built out in Phases 2-4) ──────────
-Route::middleware(['auth', 'role:'.User::ROLE_SUPER_ADMIN.','.User::ROLE_ADMIN])->prefix('admin')->group(function () {
-    Route::get('/dashboard', fn () => 'Admin dashboard — Phase 3');
-});
-
 Route::middleware(['auth', 'role:'.User::ROLE_TECHNICIAN])->prefix('technician')->group(function () {
     Route::get('/jobs', fn () => 'Technician job board — Phase 4');
 });
@@ -63,3 +58,6 @@ Route::middleware(['auth', 'role:'.User::ROLE_TECHNICIAN])->prefix('technician')
 Route::middleware(['auth', 'role:'.User::ROLE_SUPPLIER.','.User::ROLE_VENDOR])->prefix('supplier')->group(function () {
     Route::get('/dashboard', fn () => 'Supplier dashboard — Phase 4');
 });
+
+// ── Admin console (role-gated, see routes/admin.php) ────────────────────────
+require __DIR__.'/admin.php';

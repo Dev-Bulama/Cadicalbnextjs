@@ -9,7 +9,12 @@ use App\Models\MaintenanceSchedule;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Referral;
+use App\Models\Rfq;
+use App\Models\RfqBid;
+use App\Models\Service;
 use App\Models\ServiceBooking;
+use App\Models\ServiceJob;
 use App\Models\ServiceStatusEvent;
 use App\Models\Supplier;
 use App\Models\TechnicianProfile;
@@ -34,6 +39,9 @@ class DatabaseSeeder extends Seeder
         $this->seedOrders($users['customer']);
         $this->seedMaintenanceSchedule($users['hospital'], $institutionId);
         $this->seedServiceBooking($users['customer'], $users['technician']);
+        $this->seedRfq($users['hospital'], $institutionId);
+        $this->seedReferral();
+        $this->seedServices();
         $this->seedNotifications($users['admin']);
         $this->seedAuditLogs($users);
 
@@ -382,7 +390,19 @@ class DatabaseSeeder extends Seeder
         ] as $event) {
             ServiceStatusEvent::create(array_merge($event, ['booking_id' => $booking->id]));
         }
-        $this->command->info('  Service booking created');
+
+        ServiceJob::firstOrCreate(
+            ['booking_id' => $booking->id],
+            [
+                'job_code' => 'JOB-'.strtoupper(Str::random(8)),
+                'technician_id' => $techProfile->id,
+                'status' => ServiceJob::STATUS_ASSIGNED,
+                'scheduled_at' => now()->addDays(2),
+                'estimated_duration' => 120,
+            ]
+        );
+
+        $this->command->info('  Service booking + job created');
     }
 
     private function seedNotifications(int $adminUserId): void
@@ -395,6 +415,92 @@ class DatabaseSeeder extends Seeder
             AppNotification::create(array_merge($notif, ['user_id' => $adminUserId]));
         }
         $this->command->info('  Sample notifications created');
+    }
+
+    private function seedRfq(int $hospitalUserId, int $institutionId): void
+    {
+        $rfq = Rfq::firstOrCreate(
+            ['rfq_code' => 'RFQ-2026-0001'],
+            [
+                'user_id' => $hospitalUserId,
+                'institution_id' => $institutionId,
+                'contact_name' => 'Dr. Adaeze Nwosu',
+                'contact_email' => 'hospital@cadical.com',
+                'contact_phone' => '+2341234567890',
+                'organization' => 'Lagos General Hospital',
+                'title' => 'Bulk ICU Ventilators and Patient Monitors',
+                'description' => 'Requesting quotations for 10 ICU ventilators and 15 patient monitors for a new critical care wing.',
+                'category' => ['ICU', 'Monitoring'],
+                'quantity' => 25,
+                'target_budget' => 250000000,
+                'delivery_address' => '1 Hospital Road, Lagos Island, Lagos',
+                'status' => Rfq::STATUS_OPEN,
+                'closing_date' => now()->addDays(14),
+            ]
+        );
+
+        $supplier = Supplier::first();
+        if ($supplier && ! RfqBid::where('rfq_id', $rfq->id)->where('supplier_id', $supplier->id)->exists()) {
+            RfqBid::create([
+                'rfq_id' => $rfq->id,
+                'supplier_id' => $supplier->id,
+                'unit_price' => 9500000,
+                'total_price' => 237500000,
+                'lead_time_days' => 45,
+                'notes' => 'Includes 2-year warranty and on-site installation training.',
+            ]);
+        }
+
+        $this->command->info('  RFQ + bid created');
+    }
+
+    private function seedReferral(): void
+    {
+        Referral::firstOrCreate(
+            ['ref_id' => 'REF-2026-0001'],
+            [
+                'referrer_full_name' => 'Dr. Bola Adekunle',
+                'referrer_designation' => 'General Practitioner',
+                'referrer_facility' => 'Sunrise Family Clinic',
+                'referrer_facility_type' => 'CLINIC',
+                'referrer_phone' => '+2348034567890',
+                'referrer_email' => 'bola.adekunle@sunriseclinic.ng',
+                'referrer_state' => 'Lagos',
+                'referrer_lga' => 'Ikeja',
+                'client_facility_name' => 'Lagos General Hospital',
+                'client_type' => 'HOSPITAL',
+                'client_contact_person' => 'Dr. Adaeze Nwosu',
+                'client_phone' => '+2341234567890',
+                'client_state' => 'Lagos',
+                'client_lga' => 'Lagos Island',
+                'reason_for_request' => 'Patient requires advanced cardiology diagnostics unavailable at referring clinic.',
+                'supply_category' => ['Diagnostics', 'Cardiology'],
+                'urgency_level' => 'URGENT',
+                'quantity' => '1 patient',
+                'delivery_method' => 'IN_PERSON',
+                'consent' => true,
+            ]
+        );
+        $this->command->info('  Referral created');
+    }
+
+    private function seedServices(): void
+    {
+        $services = [
+            ['name' => 'Consultations', 'description' => 'Expert medical consultations across crucial health departments with international collaboration.', 'category' => Service::CATEGORY_CONSULTATIONS, 'icon' => 'message-circle', 'order' => 1],
+            ['name' => 'Pharmaceuticals', 'description' => 'Latest WHO-approved drugs and medical equipment with 100% efficacy assurance.', 'category' => Service::CATEGORY_PHARMACEUTICALS, 'icon' => 'pill', 'order' => 2],
+            ['name' => 'Surgical Equipment', 'description' => 'Advanced surgical devices including computer-assisted and robotically-assisted systems.', 'category' => Service::CATEGORY_SURGICAL_EQUIPMENT, 'icon' => 'scissors', 'order' => 3],
+            ['name' => 'Diagnostics', 'description' => '3D radiological imaging and laboratory investigations with precision and sensitivity.', 'category' => Service::CATEGORY_DIAGNOSTICS, 'icon' => 'scan', 'order' => 4],
+            ['name' => 'Rehabilitation', 'description' => 'Physical therapy, occupational therapy, and sports medicine rehabilitation.', 'category' => Service::CATEGORY_REHABILITATION, 'icon' => 'activity', 'order' => 5],
+            ['name' => 'Emergency Services', 'description' => 'Quick response emergency medical services with advanced life support capabilities.', 'category' => Service::CATEGORY_EMERGENCY, 'icon' => 'siren', 'order' => 6],
+            ['name' => 'Cosmetics', 'description' => 'Latest cosmetology and dermatology services with skin care solutions.', 'category' => Service::CATEGORY_COSMETICS, 'icon' => 'sparkles', 'order' => 7],
+            ['name' => 'Referrals', 'description' => 'Professional referral services connecting you with expert healthcare networks.', 'category' => Service::CATEGORY_REFERRALS, 'icon' => 'handshake', 'order' => 8],
+        ];
+
+        foreach ($services as $s) {
+            Service::updateOrCreate(['name' => $s['name']], $s);
+        }
+        $this->command->info('  Services catalog seeded');
     }
 
     /** @param array<string, int> $users */
