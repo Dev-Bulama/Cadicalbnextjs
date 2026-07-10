@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\TrackController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,18 @@ Route::get('/booking', fn () => view('booking'))->name('booking');
 
 Route::get('/track', fn () => view('track'))->name('track');
 Route::get('/api/track/{code}', [TrackController::class, 'show']);
+
+Route::get('/rfq', fn () => view('rfq'))->name('rfq');
+Route::get('/referrals', fn () => view('referrals'))->name('referrals');
+Route::get('/institutional-portal', fn () => view('institutional-portal'))->name('institutional-portal');
+
+Route::get('/services', [ServicesController::class, 'index'])->name('services');
+Route::get('/services/{slug}', [ServicesController::class, 'show'])->name('services.show');
+
+Route::get('/about', fn () => view('about'))->name('about');
+Route::get('/contact', fn () => view('contact'))->name('contact');
+Route::get('/terms', fn () => view('terms'))->name('terms');
+Route::get('/privacy-policy', fn () => view('privacy-policy'))->name('privacy-policy');
 
 // ── Auth ─────────────────────────────────────────────────────────────────
 Route::prefix('auth')->group(function () {
