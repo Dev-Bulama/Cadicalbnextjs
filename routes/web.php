@@ -20,6 +20,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/booking', fn () => view('booking'))->name('booking');
+Route::get('/service-booking', fn () => view('service-booking'))->name('service-booking');
 
 Route::get('/track', fn () => view('track'))->name('track');
 Route::get('/api/track/{code}', [TrackController::class, 'show']);
