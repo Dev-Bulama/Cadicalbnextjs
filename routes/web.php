@@ -2,10 +2,26 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\TrackController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('home'))->name('home');
+
+Route::get('/products', fn () => view('products'))->name('products');
+
+Route::get('/cart', fn () => view('cart'))->name('cart');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/checkout', fn () => view('checkout'))->name('checkout');
+    Route::post('/checkout/verify', [PaymentController::class, 'verify'])->name('checkout.verify');
+});
+
+Route::get('/booking', fn () => view('booking'))->name('booking');
+
+Route::get('/track', fn () => view('track'))->name('track');
+Route::get('/api/track/{code}', [TrackController::class, 'show']);
 
 // ── Auth ─────────────────────────────────────────────────────────────────
 Route::prefix('auth')->group(function () {

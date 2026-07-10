@@ -71,10 +71,9 @@
 
         <a href="{{ url('/cart') }}" class="relative p-2 rounded-lg hover:bg-slate-50 text-slate-500 hover:text-cadical-500 transition-colors">
             <i data-lucide="shopping-cart" class="w-[17px] h-[17px]"></i>
-            @php $cartCount = session('cart_count', 0); @endphp
-            @if($cartCount > 0)
-                <span class="absolute -top-0.5 -right-0.5 bg-accent text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{{ $cartCount > 9 ? '9+' : $cartCount }}</span>
-            @endif
+            <template x-if="$store.cart.totalItems > 0">
+                <span class="absolute -top-0.5 -right-0.5 bg-accent text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center" x-text="$store.cart.totalItems > 9 ? '9+' : $store.cart.totalItems"></span>
+            </template>
         </a>
 
         @auth

@@ -9,6 +9,9 @@
     <meta name="theme-color" content="#1565C0">
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
 
+    {{-- Cart store (Alpine) — registers before Alpine boots via @livewireScripts --}}
+    <script src="{{ asset('js/cart.js') }}"></script>
+
     {{-- Tailwind CDN (no build step) --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -35,9 +38,31 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>[x-cloak] { display: none !important; }</style>
+    <style>
+        [x-reveal] { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
+        [x-reveal].revealed { opacity: 1; transform: translateY(0); }
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+    </style>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.directive('reveal', (el, { expression }) => {
+                const delay = expression ? parseFloat(expression) * 1000 : 0;
+                const io = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            setTimeout(() => el.classList.add('revealed'), delay);
+                            io.unobserve(el);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                io.observe(el);
+            });
+        });
+    </script>
 
     @livewireStyles
     {{ $head ?? '' }}
+    @yield('head')
 </head>
 <body class="antialiased bg-white text-slate-900 font-sans">
 
@@ -50,16 +75,34 @@
 
     @include('partials.footer')
 
+    {{-- Toasts (mirrors `sonner` usage in the original app) --}}
+    <div
+        x-data="{ toasts: [] }"
+        @cart-toast.window="const id = Date.now(); toasts.push({ id, message: $event.detail.message }); $nextTick(() => window.lucide && window.lucide.createIcons()); setTimeout(() => toasts = toasts.filter(t => t.id !== id), 3000)"
+        class="fixed bottom-4 right-4 z-[100] flex flex-col gap-2 items-end"
+    >
+        <template x-for="toast in toasts" :key="toast.id">
+            <div x-show="true" x-transition class="bg-slate-900 text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2">
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+                <span x-text="toast.message"></span>
+            </div>
+        </template>
+    </div>
+
     {{-- Lucide icons via CDN (mirrors lucide-react usage in the original app) --}}
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <script>
         function renderIcons() { if (window.lucide) window.lucide.createIcons() }
         document.addEventListener('DOMContentLoaded', renderIcons);
         document.addEventListener('livewire:navigated', renderIcons);
-        document.addEventListener('livewire:update', renderIcons);
+        document.addEventListener('livewire:init', () => {
+            Livewire.hook('morph.updated', renderIcons);
+            Livewire.hook('commit', ({ succeed }) => succeed(() => renderIcons()));
+        });
     </script>
 
     @livewireScripts
     {{ $scripts ?? '' }}
+    @yield('scripts')
 </body>
 </html>

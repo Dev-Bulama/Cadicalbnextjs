@@ -46,4 +46,12 @@ class Order extends Model
     {
         return $this->hasMany(TrackingEvent::class);
     }
+
+    public static function generateTrackingCode(): string
+    {
+        $random = strtoupper(substr(bin2hex(random_bytes(4)), 0, 6));
+        $timestamp = substr((string) now()->timestamp, -4);
+
+        return "TRK-{$random}-{$timestamp}";
+    }
 }
