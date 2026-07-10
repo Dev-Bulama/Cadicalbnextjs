@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\AppNotification;
 use App\Models\AuditLog;
+use App\Models\BulkOrder;
+use App\Models\Clinician;
 use App\Models\Institution;
 use App\Models\MaintenanceSchedule;
 use App\Models\Order;
@@ -17,6 +19,7 @@ use App\Models\ServiceBooking;
 use App\Models\ServiceJob;
 use App\Models\ServiceStatusEvent;
 use App\Models\Supplier;
+use App\Models\SupplierProduct;
 use App\Models\TechnicianProfile;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -42,7 +45,10 @@ class DatabaseSeeder extends Seeder
         $this->seedRfq($users['hospital'], $institutionId);
         $this->seedReferral();
         $this->seedServices();
-        $this->seedNotifications($users['admin']);
+        $this->seedClinician($users['clinician']);
+        $this->seedBulkOrder($users['hospital'], $institutionId);
+        $this->seedSupplierProducts();
+        $this->seedNotifications($users);
         $this->seedAuditLogs($users);
 
         $this->command->info("Products: {$productCount}");
@@ -61,6 +67,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'customer@cadical.com', 'name' => 'Jane Hospital', 'role' => User::ROLE_CUSTOMER],
             ['email' => 'hospital@cadical.com', 'name' => 'Lagos General', 'role' => User::ROLE_HOSPITAL],
             ['email' => 'freeuser@cadical.com', 'name' => 'Free User', 'role' => User::ROLE_FREE_USER],
+            ['email' => 'clinician@cadical.com', 'name' => 'Dr. Ifeoma Balogun', 'role' => User::ROLE_CLINICIAN],
         ];
 
         $cities = ['Lagos', 'Abuja', 'Port Harcourt', 'Kano', 'Ibadan'];
@@ -405,15 +412,37 @@ class DatabaseSeeder extends Seeder
         $this->command->info('  Service booking + job created');
     }
 
-    private function seedNotifications(int $adminUserId): void
+    /** @param array<string, int> $users */
+    private function seedNotifications(array $users): void
     {
         foreach ([
             ['type' => 'system', 'title' => 'New Supplier Registration', 'message' => 'MedTech Supply Nigeria Ltd has submitted KYC documents for review.', 'action_url' => '/admin/suppliers', 'is_read' => false],
             ['type' => 'service', 'title' => 'Service Job Completed', 'message' => 'Technician Emeka Okafor has completed the repair on Philips MX800.', 'action_url' => '/admin/service-jobs', 'is_read' => true],
             ['type' => 'maintenance', 'title' => 'Maintenance Overdue Alert', 'message' => 'GE Voluson E10 at Lagos General Hospital is overdue for quarterly maintenance.', 'action_url' => '/admin/maintenance', 'is_read' => false],
         ] as $notif) {
-            AppNotification::create(array_merge($notif, ['user_id' => $adminUserId]));
+            AppNotification::create(array_merge($notif, ['user_id' => $users['admin']]));
         }
+
+        foreach ([
+            ['type' => 'service', 'title' => 'New Job Assigned', 'message' => 'You have been assigned to repair a Philips IntelliVue MX800 Monitor at Victoria Island.', 'action_url' => '/technician/jobs', 'is_read' => false],
+            ['type' => 'system', 'title' => 'Welcome to Cadical Tech', 'message' => 'Your technician account is active. Keep your availability up to date to receive job offers.', 'action_url' => null, 'is_read' => true],
+        ] as $notif) {
+            AppNotification::create(array_merge($notif, ['user_id' => $users['technician']]));
+        }
+
+        foreach ([
+            ['type' => 'system', 'title' => 'Bulk Order Received', 'message' => 'Lagos General Hospital placed a bulk order for ventilators and surgical gloves.', 'action_url' => '/supplier/orders', 'is_read' => false],
+            ['type' => 'system', 'title' => 'Application Approved', 'message' => 'Your supplier application has been approved. Welcome to the Cadical marketplace.', 'action_url' => null, 'is_read' => true],
+        ] as $notif) {
+            AppNotification::create(array_merge($notif, ['user_id' => $users['supplier']]));
+        }
+
+        foreach ([
+            ['type' => 'system', 'title' => 'Profile Verified', 'message' => 'Your clinician profile has been verified. You can now be listed as available.', 'action_url' => '/clinician/profile', 'is_read' => false],
+        ] as $notif) {
+            AppNotification::create(array_merge($notif, ['user_id' => $users['clinician']]));
+        }
+
         $this->command->info('  Sample notifications created');
     }
 
@@ -501,6 +530,75 @@ class DatabaseSeeder extends Seeder
             Service::updateOrCreate(['name' => $s['name']], $s);
         }
         $this->command->info('  Services catalog seeded');
+    }
+
+    private function seedClinician(int $clinicianUserId): void
+    {
+        Clinician::updateOrCreate(
+            ['user_id' => $clinicianUserId],
+            [
+                'first_name' => 'Ifeoma',
+                'last_name' => 'Balogun',
+                'specialization' => 'Cardiology',
+                'license_number' => 'MDCN-'.strtoupper(Str::random(6)),
+                'years_of_experience' => 11,
+                'bio' => 'Consultant cardiologist with over a decade of experience in interventional cardiology and telemedicine consultations across Nigerian tertiary hospitals.',
+                'verified' => true,
+                'is_available' => true,
+            ]
+        );
+        $this->command->info('  Clinician profile created');
+    }
+
+    private function seedSupplierProducts(): void
+    {
+        $supplier = Supplier::first();
+        if (! $supplier) {
+            return;
+        }
+
+        $products = [
+            ['name' => 'Ventilator Unit X500', 'category' => 'ICU', 'unit_price' => 240000, 'stock' => 6, 'is_approved' => true],
+            ['name' => 'Surgical Gloves (100 pcs)', 'category' => 'Consumables', 'unit_price' => 1500, 'stock' => 2, 'is_approved' => true],
+            ['name' => 'Blood Pressure Monitor', 'category' => 'Monitoring', 'unit_price' => 25000, 'stock' => 14, 'is_approved' => false],
+        ];
+
+        foreach ($products as $p) {
+            SupplierProduct::updateOrCreate(
+                ['supplier_id' => $supplier->id, 'name' => $p['name']],
+                array_merge($p, ['description' => $p['name'].' — supplied via Cadical marketplace.'])
+            );
+        }
+        $this->command->info('  Supplier products created');
+    }
+
+    private function seedBulkOrder(int $hospitalUserId, int $institutionId): void
+    {
+        $supplier = Supplier::first();
+        if (! $supplier || BulkOrder::where('supplier_id', $supplier->id)->exists()) {
+            return;
+        }
+
+        BulkOrder::create([
+            'bulk_code' => 'BLK-'.strtoupper(Str::random(8)),
+            'user_id' => $hospitalUserId,
+            'institution_id' => $institutionId,
+            'supplier_id' => $supplier->id,
+            'contact_name' => 'Dr. Adaeze Nwosu',
+            'contact_email' => 'hospital@cadical.com',
+            'contact_phone' => '+2341234567890',
+            'organization' => 'Lagos General Hospital',
+            'items' => [
+                ['name' => 'Ventilator Unit X500', 'qty' => 2, 'unit_price' => 240000],
+                ['name' => 'Surgical Gloves (100 pcs)', 'qty' => 50, 'unit_price' => 1500],
+            ],
+            'total_amount' => 555000,
+            'discount_percent' => 5,
+            'final_amount' => 527250,
+            'delivery_address' => '1 Hospital Road, Lagos Island, Lagos',
+            'status' => BulkOrder::STATUS_PROCESSING,
+        ]);
+        $this->command->info('  Bulk order created');
     }
 
     /** @param array<string, int> $users */
