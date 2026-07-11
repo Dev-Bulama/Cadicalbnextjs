@@ -4,14 +4,22 @@ namespace Database\Seeders;
 
 use App\Models\AppNotification;
 use App\Models\AuditLog;
+use App\Models\BulkOrder;
+use App\Models\Clinician;
 use App\Models\Institution;
 use App\Models\MaintenanceSchedule;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Referral;
+use App\Models\Rfq;
+use App\Models\RfqBid;
+use App\Models\Service;
 use App\Models\ServiceBooking;
+use App\Models\ServiceJob;
 use App\Models\ServiceStatusEvent;
 use App\Models\Supplier;
+use App\Models\SupplierProduct;
 use App\Models\TechnicianProfile;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -34,7 +42,13 @@ class DatabaseSeeder extends Seeder
         $this->seedOrders($users['customer']);
         $this->seedMaintenanceSchedule($users['hospital'], $institutionId);
         $this->seedServiceBooking($users['customer'], $users['technician']);
-        $this->seedNotifications($users['admin']);
+        $this->seedRfq($users['hospital'], $institutionId);
+        $this->seedReferral();
+        $this->seedServices();
+        $this->seedClinician($users['clinician']);
+        $this->seedBulkOrder($users['hospital'], $institutionId);
+        $this->seedSupplierProducts();
+        $this->seedNotifications($users);
         $this->seedAuditLogs($users);
 
         $this->command->info("Products: {$productCount}");
@@ -53,6 +67,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'customer@cadical.com', 'name' => 'Jane Hospital', 'role' => User::ROLE_CUSTOMER],
             ['email' => 'hospital@cadical.com', 'name' => 'Lagos General', 'role' => User::ROLE_HOSPITAL],
             ['email' => 'freeuser@cadical.com', 'name' => 'Free User', 'role' => User::ROLE_FREE_USER],
+            ['email' => 'clinician@cadical.com', 'name' => 'Dr. Ifeoma Balogun', 'role' => User::ROLE_CLINICIAN],
         ];
 
         $cities = ['Lagos', 'Abuja', 'Port Harcourt', 'Kano', 'Ibadan'];
@@ -382,19 +397,208 @@ class DatabaseSeeder extends Seeder
         ] as $event) {
             ServiceStatusEvent::create(array_merge($event, ['booking_id' => $booking->id]));
         }
-        $this->command->info('  Service booking created');
+
+        ServiceJob::firstOrCreate(
+            ['booking_id' => $booking->id],
+            [
+                'job_code' => 'JOB-'.strtoupper(Str::random(8)),
+                'technician_id' => $techProfile->id,
+                'status' => ServiceJob::STATUS_ASSIGNED,
+                'scheduled_at' => now()->addDays(2),
+                'estimated_duration' => 120,
+            ]
+        );
+
+        $this->command->info('  Service booking + job created');
     }
 
-    private function seedNotifications(int $adminUserId): void
+    /** @param array<string, int> $users */
+    private function seedNotifications(array $users): void
     {
         foreach ([
             ['type' => 'system', 'title' => 'New Supplier Registration', 'message' => 'MedTech Supply Nigeria Ltd has submitted KYC documents for review.', 'action_url' => '/admin/suppliers', 'is_read' => false],
             ['type' => 'service', 'title' => 'Service Job Completed', 'message' => 'Technician Emeka Okafor has completed the repair on Philips MX800.', 'action_url' => '/admin/service-jobs', 'is_read' => true],
             ['type' => 'maintenance', 'title' => 'Maintenance Overdue Alert', 'message' => 'GE Voluson E10 at Lagos General Hospital is overdue for quarterly maintenance.', 'action_url' => '/admin/maintenance', 'is_read' => false],
         ] as $notif) {
-            AppNotification::create(array_merge($notif, ['user_id' => $adminUserId]));
+            AppNotification::create(array_merge($notif, ['user_id' => $users['admin']]));
         }
+
+        foreach ([
+            ['type' => 'service', 'title' => 'New Job Assigned', 'message' => 'You have been assigned to repair a Philips IntelliVue MX800 Monitor at Victoria Island.', 'action_url' => '/technician/jobs', 'is_read' => false],
+            ['type' => 'system', 'title' => 'Welcome to Cadical Tech', 'message' => 'Your technician account is active. Keep your availability up to date to receive job offers.', 'action_url' => null, 'is_read' => true],
+        ] as $notif) {
+            AppNotification::create(array_merge($notif, ['user_id' => $users['technician']]));
+        }
+
+        foreach ([
+            ['type' => 'system', 'title' => 'Bulk Order Received', 'message' => 'Lagos General Hospital placed a bulk order for ventilators and surgical gloves.', 'action_url' => '/supplier/orders', 'is_read' => false],
+            ['type' => 'system', 'title' => 'Application Approved', 'message' => 'Your supplier application has been approved. Welcome to the Cadical marketplace.', 'action_url' => null, 'is_read' => true],
+        ] as $notif) {
+            AppNotification::create(array_merge($notif, ['user_id' => $users['supplier']]));
+        }
+
+        foreach ([
+            ['type' => 'system', 'title' => 'Profile Verified', 'message' => 'Your clinician profile has been verified. You can now be listed as available.', 'action_url' => '/clinician/profile', 'is_read' => false],
+        ] as $notif) {
+            AppNotification::create(array_merge($notif, ['user_id' => $users['clinician']]));
+        }
+
         $this->command->info('  Sample notifications created');
+    }
+
+    private function seedRfq(int $hospitalUserId, int $institutionId): void
+    {
+        $rfq = Rfq::firstOrCreate(
+            ['rfq_code' => 'RFQ-2026-0001'],
+            [
+                'user_id' => $hospitalUserId,
+                'institution_id' => $institutionId,
+                'contact_name' => 'Dr. Adaeze Nwosu',
+                'contact_email' => 'hospital@cadical.com',
+                'contact_phone' => '+2341234567890',
+                'organization' => 'Lagos General Hospital',
+                'title' => 'Bulk ICU Ventilators and Patient Monitors',
+                'description' => 'Requesting quotations for 10 ICU ventilators and 15 patient monitors for a new critical care wing.',
+                'category' => ['ICU', 'Monitoring'],
+                'quantity' => 25,
+                'target_budget' => 250000000,
+                'delivery_address' => '1 Hospital Road, Lagos Island, Lagos',
+                'status' => Rfq::STATUS_OPEN,
+                'closing_date' => now()->addDays(14),
+            ]
+        );
+
+        $supplier = Supplier::first();
+        if ($supplier && ! RfqBid::where('rfq_id', $rfq->id)->where('supplier_id', $supplier->id)->exists()) {
+            RfqBid::create([
+                'rfq_id' => $rfq->id,
+                'supplier_id' => $supplier->id,
+                'unit_price' => 9500000,
+                'total_price' => 237500000,
+                'lead_time_days' => 45,
+                'notes' => 'Includes 2-year warranty and on-site installation training.',
+            ]);
+        }
+
+        $this->command->info('  RFQ + bid created');
+    }
+
+    private function seedReferral(): void
+    {
+        Referral::firstOrCreate(
+            ['ref_id' => 'REF-2026-0001'],
+            [
+                'referrer_full_name' => 'Dr. Bola Adekunle',
+                'referrer_designation' => 'General Practitioner',
+                'referrer_facility' => 'Sunrise Family Clinic',
+                'referrer_facility_type' => 'CLINIC',
+                'referrer_phone' => '+2348034567890',
+                'referrer_email' => 'bola.adekunle@sunriseclinic.ng',
+                'referrer_state' => 'Lagos',
+                'referrer_lga' => 'Ikeja',
+                'client_facility_name' => 'Lagos General Hospital',
+                'client_type' => 'HOSPITAL',
+                'client_contact_person' => 'Dr. Adaeze Nwosu',
+                'client_phone' => '+2341234567890',
+                'client_state' => 'Lagos',
+                'client_lga' => 'Lagos Island',
+                'reason_for_request' => 'Patient requires advanced cardiology diagnostics unavailable at referring clinic.',
+                'supply_category' => ['Diagnostics', 'Cardiology'],
+                'urgency_level' => 'URGENT',
+                'quantity' => '1 patient',
+                'delivery_method' => 'IN_PERSON',
+                'consent' => true,
+            ]
+        );
+        $this->command->info('  Referral created');
+    }
+
+    private function seedServices(): void
+    {
+        $services = [
+            ['name' => 'Consultations', 'description' => 'Expert medical consultations across crucial health departments with international collaboration.', 'category' => Service::CATEGORY_CONSULTATIONS, 'icon' => 'message-circle', 'order' => 1],
+            ['name' => 'Pharmaceuticals', 'description' => 'Latest WHO-approved drugs and medical equipment with 100% efficacy assurance.', 'category' => Service::CATEGORY_PHARMACEUTICALS, 'icon' => 'pill', 'order' => 2],
+            ['name' => 'Surgical Equipment', 'description' => 'Advanced surgical devices including computer-assisted and robotically-assisted systems.', 'category' => Service::CATEGORY_SURGICAL_EQUIPMENT, 'icon' => 'scissors', 'order' => 3],
+            ['name' => 'Diagnostics', 'description' => '3D radiological imaging and laboratory investigations with precision and sensitivity.', 'category' => Service::CATEGORY_DIAGNOSTICS, 'icon' => 'scan', 'order' => 4],
+            ['name' => 'Rehabilitation', 'description' => 'Physical therapy, occupational therapy, and sports medicine rehabilitation.', 'category' => Service::CATEGORY_REHABILITATION, 'icon' => 'activity', 'order' => 5],
+            ['name' => 'Emergency Services', 'description' => 'Quick response emergency medical services with advanced life support capabilities.', 'category' => Service::CATEGORY_EMERGENCY, 'icon' => 'siren', 'order' => 6],
+            ['name' => 'Cosmetics', 'description' => 'Latest cosmetology and dermatology services with skin care solutions.', 'category' => Service::CATEGORY_COSMETICS, 'icon' => 'sparkles', 'order' => 7],
+            ['name' => 'Referrals', 'description' => 'Professional referral services connecting you with expert healthcare networks.', 'category' => Service::CATEGORY_REFERRALS, 'icon' => 'handshake', 'order' => 8],
+        ];
+
+        foreach ($services as $s) {
+            Service::updateOrCreate(['name' => $s['name']], $s);
+        }
+        $this->command->info('  Services catalog seeded');
+    }
+
+    private function seedClinician(int $clinicianUserId): void
+    {
+        Clinician::updateOrCreate(
+            ['user_id' => $clinicianUserId],
+            [
+                'first_name' => 'Ifeoma',
+                'last_name' => 'Balogun',
+                'specialization' => 'Cardiology',
+                'license_number' => 'MDCN-'.strtoupper(Str::random(6)),
+                'years_of_experience' => 11,
+                'bio' => 'Consultant cardiologist with over a decade of experience in interventional cardiology and telemedicine consultations across Nigerian tertiary hospitals.',
+                'verified' => true,
+                'is_available' => true,
+            ]
+        );
+        $this->command->info('  Clinician profile created');
+    }
+
+    private function seedSupplierProducts(): void
+    {
+        $supplier = Supplier::first();
+        if (! $supplier) {
+            return;
+        }
+
+        $products = [
+            ['name' => 'Ventilator Unit X500', 'category' => 'ICU', 'unit_price' => 240000, 'stock' => 6, 'is_approved' => true],
+            ['name' => 'Surgical Gloves (100 pcs)', 'category' => 'Consumables', 'unit_price' => 1500, 'stock' => 2, 'is_approved' => true],
+            ['name' => 'Blood Pressure Monitor', 'category' => 'Monitoring', 'unit_price' => 25000, 'stock' => 14, 'is_approved' => false],
+        ];
+
+        foreach ($products as $p) {
+            SupplierProduct::updateOrCreate(
+                ['supplier_id' => $supplier->id, 'name' => $p['name']],
+                array_merge($p, ['description' => $p['name'].' — supplied via Cadical marketplace.'])
+            );
+        }
+        $this->command->info('  Supplier products created');
+    }
+
+    private function seedBulkOrder(int $hospitalUserId, int $institutionId): void
+    {
+        $supplier = Supplier::first();
+        if (! $supplier || BulkOrder::where('supplier_id', $supplier->id)->exists()) {
+            return;
+        }
+
+        BulkOrder::create([
+            'bulk_code' => 'BLK-'.strtoupper(Str::random(8)),
+            'user_id' => $hospitalUserId,
+            'institution_id' => $institutionId,
+            'supplier_id' => $supplier->id,
+            'contact_name' => 'Dr. Adaeze Nwosu',
+            'contact_email' => 'hospital@cadical.com',
+            'contact_phone' => '+2341234567890',
+            'organization' => 'Lagos General Hospital',
+            'items' => [
+                ['name' => 'Ventilator Unit X500', 'qty' => 2, 'unit_price' => 240000],
+                ['name' => 'Surgical Gloves (100 pcs)', 'qty' => 50, 'unit_price' => 1500],
+            ],
+            'total_amount' => 555000,
+            'discount_percent' => 5,
+            'final_amount' => 527250,
+            'delivery_address' => '1 Hospital Road, Lagos Island, Lagos',
+            'status' => BulkOrder::STATUS_PROCESSING,
+        ]);
+        $this->command->info('  Bulk order created');
     }
 
     /** @param array<string, int> $users */

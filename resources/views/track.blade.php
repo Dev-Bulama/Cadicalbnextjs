@@ -1,16 +1,35 @@
 @extends('layouts.app')
 @section('content')
 <div x-data="{
-        code: '{{ request('code') }}', order: null, loading: false, notFound: false,
+        code: '{{ request('code') }}', order: null, loading: false, notFound: false, live: false, pusherChannel: null,
         async search() {
             if (!this.code.trim()) return;
             this.loading = true; this.notFound = false; this.order = null;
+            this.unsubscribe();
             try {
                 const res = await fetch('{{ url('/api/track') }}/' + encodeURIComponent(this.code.trim()));
                 if (!res.ok) { this.notFound = true; return; }
                 this.order = await res.json();
                 $nextTick(() => window.lucide && window.lucide.createIcons());
+                this.subscribeLive();
             } finally { this.loading = false; }
+        },
+        subscribeLive() {
+            @if (config('services.pusher.key'))
+                if (!window.Pusher || !this.order) return;
+                const pusher = new Pusher('{{ config('services.pusher.key') }}', { cluster: '{{ config('services.pusher.cluster') }}' });
+                this.pusherChannel = pusher.subscribe('order-' + this.order.id);
+                this.pusherChannel.bind('tracking-update', (data) => {
+                    this.order.status = data.status;
+                    this.order.tracking_events = [{ status: data.status, message: data.message, location: data.location, created_at: data.created_at }, ...(this.order.tracking_events || [])];
+                    $nextTick(() => window.lucide && window.lucide.createIcons());
+                });
+                this.live = true;
+            @endif
+        },
+        unsubscribe() {
+            if (this.pusherChannel) { this.pusherChannel.unbind_all(); this.pusherChannel = null; }
+            this.live = false;
         },
     }"
     x-init="if (code) search()"
@@ -46,6 +65,9 @@
                     <div class="flex items-center justify-between mb-4">
                         <div>
                             <h2 class="text-xl font-bold text-slate-900">Order <span x-text="order.tracking_code"></span></h2>
+                            <p x-show="live" x-cloak class="text-[11px] text-emerald-500 font-medium flex items-center gap-1 mt-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live updates
+                            </p>
                         </div>
                         <span class="bg-blue-100 text-cadical-500 text-xs font-semibold px-3 py-1 rounded-full" x-text="order.status"></span>
                     </div>
@@ -98,4 +120,10 @@
         </template>
     </div>
 </div>
+
+@if (config('services.pusher.key'))
+    @section('scripts')
+        <script src="https://js.pusher.com/8.4/pusher.min.js"></script>
+    @endsection
+@endif
 @endsection

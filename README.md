@@ -16,15 +16,22 @@ supply-chain and field-service platform. Same interface and feature set, rebuilt
 
 ## Status
 
-This is being rebuilt in phases (tracked in the session that created it):
+Rebuilt in five phases (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full breakdown):
 
-- [x] **Phase 1** — Laravel scaffold, MySQL schema (35 tables mirroring the original Prisma schema),
+- [x] **Phase 1** — Laravel scaffold, MySQL schema (35+ tables mirroring the original Prisma schema),
       role-based auth (session + Sanctum), base Blade/Livewire/Tailwind-CDN layout with navbar/footer,
-      seeders (8 demo accounts, 100 products across 9 categories, sample orders/bookings/notifications).
-- [ ] **Phase 2** — Public storefront (home, products, cart, checkout, tracking, service booking, RFQ, etc.)
-- [ ] **Phase 3** — Admin console (17 sections incl. analytics, audit logs, CRM integration hub)
-- [ ] **Phase 4** — Supplier + technician portals, notifications, chat
-- [ ] **Phase 5** — Zoho CRM sync engine, Pusher real-time, PWA, security hardening
+      seeders (demo accounts, 100 products across 9 categories, sample orders/bookings/notifications).
+- [x] **Phase 2** — Public storefront: home, product catalog, cart, checkout (Flutterwave + Paystack),
+      order tracking, booking wizards, RFQ, referrals, institutional portal, services, static pages.
+- [x] **Phase 3** — Admin console: 17 sections including dashboard, products, orders, bookings,
+      clinicians, suppliers, RFQ, institutions, referrals, service jobs, technicians, maintenance,
+      services, tracking, Chart.js analytics, audit logs, and a CRM integration hub.
+- [x] **Phase 4** — Self-service portals for suppliers (registration wizard, dashboard, products,
+      orders, profile), technicians (mobile job board, schedule, live tracking, profile), and
+      clinicians (dashboard, opportunities, profile), plus a shared database-backed notifications center.
+- [x] **Phase 5** — Zoho CRM sync engine (OAuth2, field mapping, automation rules, webhook receiver),
+      Pusher real-time order/job status broadcasting, PWA (manifest, service worker, install icons),
+      security headers + API rate limiting, and Docker/Nginx deployment config.
 
 ## Local setup
 
@@ -42,13 +49,28 @@ php artisan serve
 
 All accounts use password `Cadical@2026`.
 
-| Role | Email |
-|---|---|
-| Super Admin | superadmin@cadical.com |
-| Admin | admin@cadical.com |
-| Supplier | supplier@cadical.com |
-| Vendor | vendor@cadical.com |
-| Technician | technician@cadical.com |
-| Customer | customer@cadical.com |
-| Hospital (Institution) | hospital@cadical.com |
-| Free User | freeuser@cadical.com |
+| Role | Email | Redirects to |
+|---|---|---|
+| Super Admin | superadmin@cadical.com | /admin/dashboard |
+| Admin | admin@cadical.com | /admin/dashboard |
+| Supplier | supplier@cadical.com | /supplier/dashboard |
+| Vendor | vendor@cadical.com | /supplier/dashboard |
+| Technician | technician@cadical.com | /technician/jobs |
+| Clinician | clinician@cadical.com | /clinician/dashboard |
+| Customer | customer@cadical.com | /products |
+| Hospital (Institution) | hospital@cadical.com | /products |
+| Free User | freeuser@cadical.com | /products |
+
+## Docker
+
+A production-like local stack (MySQL + PHP-FPM + Nginx) is provided:
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+docker compose run --rm migrate   # applies migrations once mysql is healthy
+```
+
+The `nginx` service listens on `http://localhost:8000`. See `Dockerfile`, `docker-compose.yml`,
+and `nginx.conf` for details — these mirror the original app's deployment setup, swapped for
+PHP-FPM/Nginx instead of the Next.js standalone Node server, and MySQL instead of PostgreSQL.

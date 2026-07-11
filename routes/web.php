@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\TrackController;
@@ -51,15 +52,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', fn () => redirect(request()->user()->redirectPath()))->name('dashboard');
 });
 
-// ── Role-gated portal roots (full pages built out in Phases 2-4) ──────────
-Route::middleware(['auth', 'role:'.User::ROLE_SUPER_ADMIN.','.User::ROLE_ADMIN])->prefix('admin')->group(function () {
-    Route::get('/dashboard', fn () => 'Admin dashboard — Phase 3');
-});
+Route::middleware('auth')->get('/notifications', [NotificationsController::class, 'index'])->name('notifications');
 
-Route::middleware(['auth', 'role:'.User::ROLE_TECHNICIAN])->prefix('technician')->group(function () {
-    Route::get('/jobs', fn () => 'Technician job board — Phase 4');
-});
-
-Route::middleware(['auth', 'role:'.User::ROLE_SUPPLIER.','.User::ROLE_VENDOR])->prefix('supplier')->group(function () {
-    Route::get('/dashboard', fn () => 'Supplier dashboard — Phase 4');
-});
+// ── Role portals (each role-gated inside its own routes file) ──────────────
+require __DIR__.'/admin.php';
+require __DIR__.'/supplier.php';
+require __DIR__.'/technician.php';
+require __DIR__.'/clinician.php';
