@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
         $productCount = $this->seedProducts();
         $this->seedTechnicianProfile($users['technician']);
         $this->seedSupplier($users['supplier']);
+        $this->seedVendorSupplier($users['vendor']);
         $institutionId = $this->seedInstitution($users['hospital']);
         $this->seedOrders($users['customer']);
         $this->seedMaintenanceSchedule($users['hospital'], $institutionId);
@@ -50,6 +51,7 @@ class DatabaseSeeder extends Seeder
         $this->seedSupplierProducts();
         $this->seedNotifications($users);
         $this->seedAuditLogs($users);
+        $this->call(HomeSectionSeeder::class);
 
         $this->command->info("Products: {$productCount}");
         $this->command->info('Seed complete. Password for all demo accounts: '.self::PASSWORD);
@@ -270,6 +272,32 @@ class DatabaseSeeder extends Seeder
             ]
         );
         $this->command->info('  Supplier profile created');
+    }
+
+    private function seedVendorSupplier(int $vendorUserId): void
+    {
+        Supplier::updateOrCreate(
+            ['email' => 'vendor@cadical.com'],
+            [
+                'user_id' => $vendorUserId,
+                'company_name' => 'Vendor Partner Supplies Ltd',
+                'contact_name' => 'Amina Suleiman',
+                'cac_number' => 'RC-7654321',
+                'tax_id' => 'TIN-123456789',
+                'phone' => '+2348098765432',
+                'address' => '12 Independence Way',
+                'city' => 'Kaduna',
+                'state' => 'Kaduna',
+                'country' => 'Nigeria',
+                'category' => ['Consumables', 'Laboratory Equipment'],
+                'description' => 'Regional distributor of lab consumables and diagnostic supplies.',
+                'status' => Supplier::STATUS_APPROVED,
+                'is_active' => true,
+                'rating' => 4.2,
+                'total_orders' => 34,
+            ]
+        );
+        $this->command->info('  Vendor supplier profile created');
     }
 
     private function seedInstitution(int $hospitalUserId): int

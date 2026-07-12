@@ -1,10 +1,13 @@
-@php $featured = \App\Models\Product::latest()->limit(8)->get(); @endphp
+@php
+    $featured = \App\Models\Product::latest()->limit(8)->get();
+    $meta = \App\Models\HomeSection::content('featured_products', ['meta' => []])['meta'];
+@endphp
 <section class="py-20 px-4 md:px-8 bg-white">
     <div class="max-w-7xl mx-auto">
         <div class="flex items-end justify-between mb-10">
             <div>
-                <p class="text-cadical-500 text-xs font-semibold uppercase tracking-widest mb-2">MediStore</p>
-                <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Featured Products</h2>
+                <p class="text-cadical-500 text-xs font-semibold uppercase tracking-widest mb-2">{{ $meta['eyebrow'] ?? '' }}</p>
+                <h2 class="text-2xl md:text-3xl font-bold text-slate-900">{{ $meta['heading'] ?? '' }}</h2>
             </div>
             <a href="{{ url('/products') }}" class="text-sm text-cadical-500 font-semibold hover:underline hidden sm:flex items-center gap-1">View all <i data-lucide="arrow-right" class="w-[13px] h-[13px]"></i></a>
         </div>

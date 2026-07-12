@@ -1,17 +1,14 @@
 @php
-    $steps = [
-        ['n' => '01', 'title' => 'Browse or Request', 'desc' => 'Explore the MediStore, use the institutional portal, or submit a custom equipment request.'],
-        ['n' => '02', 'title' => 'Verify & Confirm', 'desc' => 'Our compliance team confirms product availability, certification, and pricing for your order.'],
-        ['n' => '03', 'title' => 'Fast Dispatch', 'desc' => 'We pick, pack, and dispatch same-day (Lagos) or next-day (nationwide) with tracking.'],
-        ['n' => '04', 'title' => 'Track & Receive', 'desc' => 'Monitor your shipment in real-time. Receive delivery confirmation and invoice automatically.'],
-    ];
+    $section = \App\Models\HomeSection::content('process', ['meta' => [], 'items' => []]);
+    $steps = $section['items'];
+    $meta = $section['meta'];
 @endphp
 <section class="py-20 px-4 md:px-8 bg-white">
     <div class="max-w-5xl mx-auto">
         <div class="text-center mb-12">
-            <p class="text-cadical-500 text-xs font-semibold uppercase tracking-widest mb-3">How It Works</p>
-            <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-3">Simple from start to finish.</h2>
-            <p class="text-slate-500">Whether you're ordering supplies or booking a service — the process is seamless.</p>
+            <p class="text-cadical-500 text-xs font-semibold uppercase tracking-widest mb-3">{{ $meta['eyebrow'] ?? '' }}</p>
+            <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-3">{{ $meta['heading'] ?? '' }}</h2>
+            <p class="text-slate-500">{{ $meta['sub'] ?? '' }}</p>
         </div>
 
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">

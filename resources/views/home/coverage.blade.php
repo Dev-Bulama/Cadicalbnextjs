@@ -1,12 +1,9 @@
 @php
-    $cities = [
-        ['city' => 'Lagos', 'time' => 'Same-day'],
-        ['city' => 'Abuja', 'time' => '24–48hrs'],
-        ['city' => 'Port Harcourt', 'time' => '24–48hrs'],
-        ['city' => 'Kano', 'time' => '48–72hrs'],
-        ['city' => 'Ibadan', 'time' => '24–48hrs'],
-        ['city' => 'Enugu', 'time' => '48–72hrs'],
-    ];
+    $section = \App\Models\HomeSection::content('coverage', ['meta' => [], 'items' => []]);
+    $cities = $section['items'];
+    $meta = $section['meta'];
+    $coverageImage = $meta['image'] ?? 'deliveries.png';
+    $coverageImageUrl = str_starts_with($coverageImage, '/storage') ? url($coverageImage) : asset($coverageImage);
 @endphp
 <section class="py-20 px-4 md:px-8 bg-cadical-700 relative overflow-hidden">
     <div class="absolute inset-0" style="background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 40px 40px;"></div>
@@ -15,10 +12,10 @@
         <div x-reveal>
             <div class="flex items-center gap-2 mb-4">
                 <i data-lucide="map-pin" class="w-4 h-4 text-accent"></i>
-                <p class="text-white/60 text-xs font-semibold uppercase tracking-widest">Nationwide Coverage</p>
+                <p class="text-white/60 text-xs font-semibold uppercase tracking-widest">{{ $meta['eyebrow'] ?? '' }}</p>
             </div>
-            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">Where we <span class="italic text-teal-300">deliver.</span></h2>
-            <p class="text-white/65 mb-8 leading-relaxed">Fast, reliable delivery of medical equipment and supplies across Nigeria's major cities and beyond.</p>
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">{{ $meta['heading'] ?? '' }} <span class="italic text-teal-300">{{ $meta['heading_accent'] ?? '' }}</span></h2>
+            <p class="text-white/65 mb-8 leading-relaxed">{{ $meta['paragraph'] ?? '' }}</p>
             <div class="grid grid-cols-2 gap-3">
                 @foreach ($cities as $c)
                     <div class="flex items-center justify-between bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2.5">
@@ -31,7 +28,7 @@
 
         <div x-reveal="0.1" class="flex justify-center">
             <div class="relative w-[300px] md:w-[360px] aspect-square rounded-2xl overflow-hidden border border-white/20 shadow-2xl">
-                <img src="{{ asset('deliveries.png') }}" alt="Nationwide Delivery" class="w-full h-full object-cover">
+                <img src="{{ $coverageImageUrl }}" alt="Nationwide Delivery" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-tr from-cadical-700/40 to-transparent"></div>
             </div>
         </div>

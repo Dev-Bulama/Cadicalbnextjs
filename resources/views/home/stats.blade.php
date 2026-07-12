@@ -1,10 +1,5 @@
 @php
-    $stats = [
-        ['value' => 100, 'suffix' => '+', 'label' => 'Products Available', 'sub' => 'Across 9 categories'],
-        ['value' => 50, 'suffix' => '+', 'label' => 'Healthcare Clients', 'sub' => 'Hospitals & clinics'],
-        ['value' => 99, 'suffix' => '%', 'label' => 'Certified Products', 'sub' => 'NAFDAC & ISO compliant'],
-        ['value' => 24, 'suffix' => 'hr', 'label' => 'Service Response', 'sub' => 'Emergency & planned'],
-    ];
+    $stats = \App\Models\HomeSection::content('stats', ['items' => []])['items'];
 @endphp
 <section class="py-16 px-4 md:px-8 bg-cadical-700">
     <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">

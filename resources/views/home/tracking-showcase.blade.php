@@ -1,24 +1,28 @@
 @php
-    $stages = [
-        ['icon' => 'check-circle-2', 'label' => 'Order Placed', 'desc' => 'Order confirmed & payment processed', 'done' => true, 'active' => false],
-        ['icon' => 'package', 'label' => 'Processing', 'desc' => 'Equipment verified and packed', 'done' => true, 'active' => false],
-        ['icon' => 'truck', 'label' => 'Dispatched', 'desc' => 'In transit via certified carrier', 'done' => true, 'active' => true],
-        ['icon' => 'map-pin', 'label' => 'Out for Delivery', 'desc' => 'Near your location', 'done' => false, 'active' => false],
-        ['icon' => 'check-circle-2', 'label' => 'Delivered', 'desc' => 'Signed & received by your facility', 'done' => false, 'active' => false],
-    ];
+    $section = \App\Models\HomeSection::content('tracking_showcase', ['meta' => [], 'items' => []]);
+    $meta = $section['meta'];
+    // "done"/"active" progress state is decorative demo UI, not editable content —
+    // keep the same visual progression regardless of how many stages are configured.
+    $stages = array_values($section['items']);
+    $activeIndex = max(0, count($stages) - 3);
+    foreach ($stages as $i => &$stage) {
+        $stage['done'] = $i <= $activeIndex;
+        $stage['active'] = $i === $activeIndex;
+    }
+    unset($stage);
 @endphp
 <section class="py-20 px-4 md:px-8 bg-white">
     <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         <div x-reveal>
-            <p class="text-cadical-500 text-xs font-semibold uppercase tracking-widest mb-3">Real-Time Tracking</p>
-            <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-4 leading-tight">Always know where your order is.</h2>
-            <p class="text-slate-500 leading-relaxed mb-6">From the moment you place an order to the point of delivery, you have full visibility into every step of your shipment. No calls required.</p>
+            <p class="text-cadical-500 text-xs font-semibold uppercase tracking-widest mb-3">{{ $meta['eyebrow'] ?? '' }}</p>
+            <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-4 leading-tight">{{ $meta['heading'] ?? '' }}</h2>
+            <p class="text-slate-500 leading-relaxed mb-6">{{ $meta['paragraph'] ?? '' }}</p>
             <ul class="space-y-2 mb-8 text-sm text-slate-600">
-                @foreach (['Live status updates via SMS & email', 'Estimated delivery window', 'Delivery confirmation & proof'] as $t)
+                @foreach ($meta['bullets'] ?? [] as $t)
                     <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0"></i> {{ $t }}</li>
                 @endforeach
             </ul>
-            <a href="{{ url('/products') }}" class="inline-flex items-center gap-2 bg-cadical-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-cadical-700 transition-colors">Track Your Order</a>
+            <a href="{{ url('/products') }}" class="inline-flex items-center gap-2 bg-cadical-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-cadical-700 transition-colors">{{ $meta['cta_label'] ?? 'Track Your Order' }}</a>
         </div>
 
         <div x-reveal="0.1" class="bg-slate-50 rounded-2xl p-6 border border-slate-100">

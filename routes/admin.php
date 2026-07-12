@@ -8,7 +8,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'role:'.User::ROLE_SUPER_ADMIN.','.User::ROLE_ADMIN])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', fn () => redirect()->route('admin.dashboard'));
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/homepage', fn () => view('admin.homepage'))->name('homepage');
     Route::get('/products', fn () => view('admin.products'))->name('products');
     Route::get('/orders', fn () => view('admin.orders'))->name('orders');
     Route::get('/bookings', fn () => view('admin.bookings'))->name('bookings');

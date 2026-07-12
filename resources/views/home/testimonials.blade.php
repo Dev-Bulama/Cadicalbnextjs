@@ -1,16 +1,13 @@
 @php
-    $testimonials = [
-        ['name' => 'Dr. Amaka Okafor', 'role' => 'Medical Director', 'org' => "St. Raphael's Specialist Hospital, Lagos", 'text' => "Cadical has transformed how we procure medical equipment. The institutional portal is seamless — we raised a purchase order and had our ultrasound machines delivered in 48 hours. Exceptional service.", 'rating' => 5],
-        ['name' => 'Engr. Taiwo Balogun', 'role' => 'Biomedical Engineer', 'org' => 'University College Hospital, Ibadan', 'text' => 'Their maintenance engineers are genuinely knowledgeable. We had a Philips monitor down at 2am and their team was on-site by morning. That kind of reliability is rare in Nigeria.', 'rating' => 5],
-        ['name' => 'Mrs. Ngozi Eze', 'role' => 'Head of Procurement', 'org' => 'Redeemed Healthcare Centre, Abuja', 'text' => "We've used three other suppliers before Cadical. None of them offered the level of after-sales support and product certification documentation that Cadical provides as standard.", 'rating' => 5],
-        ['name' => 'Dr. Emmanuel Adeyemi', 'role' => 'Lab Director', 'org' => 'Synlab Nigeria, Lagos', 'text' => 'The diagnostic equipment we sourced through Cadical has been performing flawlessly for over a year. The calibration certificates and service reports were impeccable.', 'rating' => 5],
-    ];
+    $section = \App\Models\HomeSection::content('testimonials', ['meta' => [], 'items' => []]);
+    $testimonials = $section['items'];
+    $meta = $section['meta'];
 @endphp
 <section class="py-20 px-4 md:px-8 bg-slate-50">
     <div class="max-w-5xl mx-auto">
         <div class="text-center mb-12">
-            <p class="text-cadical-500 text-xs font-semibold uppercase tracking-widest mb-3">Testimonials</p>
-            <h2 class="text-2xl md:text-3xl font-bold text-slate-900">What healthcare professionals say</h2>
+            <p class="text-cadical-500 text-xs font-semibold uppercase tracking-widest mb-3">{{ $meta['eyebrow'] ?? '' }}</p>
+            <h2 class="text-2xl md:text-3xl font-bold text-slate-900">{{ $meta['heading'] ?? '' }}</h2>
         </div>
 
         <div x-data="{
