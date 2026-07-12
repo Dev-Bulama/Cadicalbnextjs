@@ -1,17 +1,14 @@
 @php
-    $services = [
-        ['icon' => 'wrench', 'title' => 'Equipment Repair', 'desc' => 'Fast on-site diagnosis and repair for all major brands — Philips, GE, Siemens, Mindray and more.', 'tags' => ['Imaging', 'ICU', 'Diagnostics'], 'color' => 'text-blue-600 bg-blue-50', 'cta' => 'Book Repair'],
-        ['icon' => 'settings', 'title' => 'Preventive Maintenance', 'desc' => 'Scheduled quarterly or annual maintenance contracts to keep your equipment running at peak performance.', 'tags' => ['Annual Plans', 'Quarterly', 'Reports'], 'color' => 'text-emerald-600 bg-emerald-50', 'cta' => 'Get a Plan'],
-        ['icon' => 'gauge', 'title' => 'Calibration', 'desc' => 'Certified calibration services for diagnostic and measurement equipment to regulatory standards.', 'tags' => ['ISO 9001', 'Certificates', 'Auditable'], 'color' => 'text-violet-600 bg-violet-50', 'cta' => 'Book Calibration'],
-        ['icon' => 'phone', 'title' => 'Supply Consultation', 'desc' => 'Expert procurement advice for hospitals, clinics and institutions on sourcing, budgeting, and contracts.', 'tags' => ['Free Consult', 'Procurement', 'Budget'], 'color' => 'text-amber-600 bg-amber-50', 'cta' => 'Talk to Us'],
-    ];
+    $section = \App\Models\HomeSection::content('services', ['meta' => [], 'items' => []]);
+    $services = $section['items'];
+    $meta = $section['meta'];
 @endphp
 <section id="services" class="py-20 px-4 md:px-8 bg-slate-50">
     <div class="max-w-6xl mx-auto">
         <div class="text-center mb-12">
-            <p class="text-cadical-500 text-xs font-semibold uppercase tracking-widest mb-3">Medical Services</p>
-            <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-3">We don't just supply — we support.</h2>
-            <p class="text-slate-500 max-w-xl mx-auto">From emergency repair to scheduled maintenance, our certified engineers keep your equipment operational.</p>
+            <p class="text-cadical-500 text-xs font-semibold uppercase tracking-widest mb-3">{{ $meta['eyebrow'] ?? '' }}</p>
+            <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-3">{{ $meta['heading'] ?? '' }}</h2>
+            <p class="text-slate-500 max-w-xl mx-auto">{{ $meta['sub'] ?? '' }}</p>
         </div>
 
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -36,7 +33,7 @@
 
         <div class="text-center mt-10">
             <a href="{{ url('/booking') }}" class="inline-flex items-center gap-2 bg-cadical-500 text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-cadical-700 transition-colors shadow-lg shadow-blue-200">
-                Book Any Service <i data-lucide="arrow-right" class="w-[15px] h-[15px]"></i>
+                {{ $meta['cta_label'] ?? 'Book Any Service' }} <i data-lucide="arrow-right" class="w-[15px] h-[15px]"></i>
             </a>
         </div>
     </div>

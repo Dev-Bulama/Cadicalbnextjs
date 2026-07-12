@@ -1,6 +1,7 @@
 @php
     $navItems = [
         ['name' => 'Dashboard', 'href' => '/admin/dashboard', 'icon' => 'layout-dashboard'],
+        ['name' => 'Homepage Content', 'href' => '/admin/homepage', 'icon' => 'layout-template'],
         ['name' => 'Products', 'href' => '/admin/products', 'icon' => 'package'],
         ['name' => 'Orders', 'href' => '/admin/orders', 'icon' => 'shopping-cart'],
         ['name' => 'Bookings', 'href' => '/admin/bookings', 'icon' => 'calendar'],

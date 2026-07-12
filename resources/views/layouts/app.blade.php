@@ -48,16 +48,33 @@
         document.addEventListener('alpine:init', () => {
             Alpine.directive('reveal', (el, { expression }) => {
                 const delay = expression ? parseFloat(expression) * 1000 : 0;
+                const reveal = () => el.classList.add('revealed');
+
+                // Safety net: on some mobile browsers the IntersectionObserver callback
+                // can be delayed or never fire (backgrounded tabs, slow script parsing,
+                // elements taller than the viewport). Content must never stay invisible,
+                // so force a reveal shortly after the element exists regardless.
+                const fallback = setTimeout(() => reveal(), 1500 + delay);
+
                 const io = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
-                            setTimeout(() => el.classList.add('revealed'), delay);
+                            clearTimeout(fallback);
+                            setTimeout(reveal, delay);
                             io.unobserve(el);
                         }
                     });
-                }, { threshold: 0.1 });
+                }, { threshold: 0, rootMargin: '0px 0px 200px 0px' });
                 io.observe(el);
             });
+        });
+
+        // Global safety net: if Alpine/the reveal directive never initializes at all
+        // (script load failure, slow network), don't leave the whole page blank.
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelectorAll('[x-reveal]:not(.revealed)').forEach((el) => el.classList.add('revealed'));
+            }, 3000);
         });
     </script>
 
