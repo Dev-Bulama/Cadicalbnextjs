@@ -1,11 +1,12 @@
 <nav
     x-data="{
-        open: false, scrolled: false, prodOpen: false, servOpen: false,
+        open: false, scrolled: false, prodOpen: false, servOpen: false, acctOpen: false,
         searchOpen: false, searchQ: '', expanded: null,
         toggleExpanded(label) { this.expanded = this.expanded === label ? null : label },
         submitSearch() { if (this.searchQ.trim()) window.location.href = '/products?search=' + encodeURIComponent(this.searchQ) }
     }"
     x-init="window.addEventListener('scroll', () => scrolled = window.scrollY > 20, { passive: true })"
+    x-effect="document.documentElement.style.overflow = open ? 'hidden' : ''"
     :class="scrolled ? 'bg-white/98 backdrop-blur-md shadow-sm border-b border-slate-100' : 'bg-white'"
     class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 h-16 flex items-center px-4 md:px-8 justify-between"
 >
@@ -49,7 +50,7 @@
                 <a href="{{ url('/booking') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-cadical-500 transition-colors"><i data-lucide="wrench" class="w-3.5 h-3.5 text-cadical-500"></i> Equipment Repair</a>
                 <a href="{{ url('/booking') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-cadical-500 transition-colors"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-cadical-500"></i> Maintenance Plans</a>
                 <a href="{{ url('/institutional-portal') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-cadical-500 transition-colors"><i data-lucide="building-2" class="w-3.5 h-3.5 text-cadical-500"></i> Institutional Supply</a>
-                <a href="{{ url('/dashboard/track') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-cadical-500 transition-colors"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-cadical-500"></i> Track Order</a>
+                <a href="{{ url('/track') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-cadical-500 transition-colors"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-cadical-500"></i> Track Order</a>
             </div>
         </div>
 
@@ -77,7 +78,23 @@
         </a>
 
         @auth
-            <a href="{{ url('/dashboard') }}" class="hidden md:flex p-2 rounded-lg hover:bg-slate-50 text-slate-500 hover:text-cadical-500 transition-colors"><i data-lucide="user" class="w-[17px] h-[17px]"></i></a>
+            <div class="relative hidden md:block" @mouseenter="acctOpen = true" @mouseleave="acctOpen = false">
+                <button class="flex p-2 rounded-lg hover:bg-slate-50 text-slate-500 hover:text-cadical-500 transition-colors">
+                    <i data-lucide="user" class="w-[17px] h-[17px]"></i>
+                </button>
+                <div x-show="acctOpen" x-cloak x-transition class="absolute top-full right-0 mt-1 w-52 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50">
+                    <div class="px-3 py-1.5 border-b border-slate-100 mb-1">
+                        <p class="text-sm font-semibold text-slate-800 truncate">{{ auth()->user()->name }}</p>
+                        <p class="text-xs text-slate-400 truncate">{{ auth()->user()->email }}</p>
+                    </div>
+                    <a href="{{ url('/dashboard') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-cadical-500 transition-colors"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-cadical-500"></i> My Account</a>
+                    <a href="{{ url('/notifications') }}" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-cadical-500 transition-colors"><i data-lucide="bell" class="w-3.5 h-3.5 text-cadical-500"></i> Notifications</a>
+                    <form method="POST" action="{{ url('/auth/logout') }}" class="border-t border-slate-100 mt-1 pt-1">
+                        @csrf
+                        <button type="submit" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"><i data-lucide="log-out" class="w-3.5 h-3.5"></i> Sign Out</button>
+                    </form>
+                </div>
+            </div>
         @else
             <a href="{{ url('/auth/login') }}" class="hidden md:flex p-2 rounded-lg hover:bg-slate-50 text-slate-500 hover:text-cadical-500 transition-colors"><i data-lucide="user" class="w-[17px] h-[17px]"></i></a>
         @endauth
@@ -85,65 +102,105 @@
         <a href="{{ url('/booking') }}" class="hidden lg:inline-flex items-center gap-1.5 bg-cadical-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-cadical-700 transition-colors ml-1">Book Service</a>
 
         <button class="lg:hidden p-2 rounded-lg hover:bg-slate-50 text-slate-600 ml-1" @click="open = !open; expanded = null">
-            <i data-lucide="x" class="w-[21px] h-[21px]" x-show="open"></i>
-            <i data-lucide="menu" class="w-[21px] h-[21px]" x-show="!open"></i>
+            <i data-lucide="menu" class="w-[21px] h-[21px]"></i>
         </button>
     </div>
 
-    {{-- Mobile menu --}}
-    <div x-show="open" x-cloak x-transition class="absolute top-16 left-0 right-0 bg-white border-b border-slate-100 shadow-xl lg:hidden z-50 overflow-y-auto max-h-[calc(100vh-4rem)]">
-        <form @submit.prevent="submitSearch" class="mx-4 mt-4 mb-2 flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5">
-            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i>
-            <input x-model="searchQ" placeholder="Search equipment..." class="bg-transparent text-sm outline-none flex-1 text-slate-700 placeholder:text-slate-400">
-        </form>
+    {{-- Mobile menu: full-screen slide-in drawer from the right --}}
+    <div x-show="open" x-cloak class="lg:hidden">
+        <div x-show="open" x-transition:enter="transition-opacity ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="open = false" class="fixed inset-0 bg-slate-900/50 z-40"></div>
 
-        <div class="px-4 pb-2">
-            @php
-                $mobileSections = [
-                    'Products' => ['icon' => 'package', 'links' => [
-                        ['label' => 'Diagnostics', 'href' => '/products?category=Diagnostics'],
-                        ['label' => 'Imaging', 'href' => '/products?category=Imaging'],
-                        ['label' => 'ICU Equipment', 'href' => '/products?category=ICU'],
-                        ['label' => 'Surgical', 'href' => '/products?category=Surgery'],
-                        ['label' => 'Laboratory', 'href' => '/products?category=Laboratory'],
-                        ['label' => 'Monitoring', 'href' => '/products?category=Monitoring'],
-                        ['label' => 'Dental', 'href' => '/products?category=Dental'],
-                        ['label' => 'Rehabilitation', 'href' => '/products?category=Rehabilitation'],
-                        ['label' => 'Consumables', 'href' => '/products?category=Consumables'],
-                    ]],
-                    'Services' => ['icon' => 'wrench', 'links' => [
-                        ['label' => 'Equipment Repair', 'href' => '/booking'],
-                        ['label' => 'Maintenance Plans', 'href' => '/booking'],
-                        ['label' => 'Institutional Supply', 'href' => '/institutional-portal'],
-                        ['label' => 'Track Order', 'href' => '/dashboard/track'],
-                    ]],
-                    'Company' => ['icon' => 'building-2', 'links' => [
-                        ['label' => 'Institutional Portal', 'href' => '/institutional-portal'],
-                        ['label' => 'About Cadical', 'href' => '/about'],
-                        ['label' => 'Contact Us', 'href' => '/contact'],
-                    ]],
-                ];
-            @endphp
-            @foreach ($mobileSections as $label => $section)
-                <div class="border-b border-slate-100 last:border-none">
-                    <button @click="toggleExpanded('{{ $label }}')" class="w-full flex items-center justify-between py-3 text-sm font-semibold text-slate-800">
-                        <span class="flex items-center gap-2"><i data-lucide="{{ $section['icon'] }}" class="w-[15px] h-[15px] text-cadical-500"></i>{{ $label }}</span>
-                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" :class="expanded === '{{ $label }}' && 'rotate-180'"></i>
-                    </button>
-                    <div x-show="expanded === '{{ $label }}'" x-cloak class="pb-2 pl-6 space-y-0">
-                        @foreach ($section['links'] as $link)
-                            <a href="{{ url($link['href']) }}" @click="open = false" class="flex items-center gap-1.5 py-2 text-sm text-slate-600 hover:text-cadical-500 transition-colors">
-                                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i>{{ $link['label'] }}
-                            </a>
-                        @endforeach
+        <div x-show="open" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full" class="fixed top-0 right-0 bottom-0 w-[88%] max-w-sm bg-white z-50 shadow-2xl flex flex-col">
+            <div class="flex items-center justify-between px-4 h-16 border-b border-slate-100 flex-shrink-0">
+                <span class="font-bold text-sm text-slate-800">Menu</span>
+                <button @click="open = false" class="p-2 rounded-lg hover:bg-slate-50 text-slate-600">
+                    <i data-lucide="x" class="w-[21px] h-[21px]"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto">
+                <form @submit.prevent="submitSearch" class="mx-4 mt-4 mb-2 flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5">
+                    <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i>
+                    <input x-model="searchQ" placeholder="Search equipment..." class="bg-transparent text-sm outline-none flex-1 text-slate-700 placeholder:text-slate-400">
+                </form>
+
+                @auth
+                    <div class="mx-4 mt-2 mb-1 flex items-center gap-3 bg-blue-50/60 rounded-xl px-3 py-3">
+                        <div class="w-9 h-9 rounded-full bg-cadical-500/10 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="user" class="w-4 h-4 text-cadical-500"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold text-slate-800 truncate">{{ auth()->user()->name }}</p>
+                            <p class="text-xs text-slate-400 truncate">{{ auth()->user()->email }}</p>
+                        </div>
                     </div>
-                </div>
-            @endforeach
-        </div>
+                @endauth
 
-        <div class="px-4 py-4 flex flex-col gap-2.5 border-t border-slate-100">
-            <a href="{{ url('/booking') }}" @click="open = false" class="bg-cadical-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold text-center">Book a Service</a>
-            <a href="{{ url('/auth/login') }}" @click="open = false" class="border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-sm font-semibold text-center">Sign In</a>
+                <div class="px-4 pb-2">
+                    @php
+                        $mobileSections = [
+                            'Products' => ['icon' => 'package', 'links' => [
+                                ['label' => 'Diagnostics', 'href' => '/products?category=Diagnostics'],
+                                ['label' => 'Imaging', 'href' => '/products?category=Imaging'],
+                                ['label' => 'ICU Equipment', 'href' => '/products?category=ICU'],
+                                ['label' => 'Surgical', 'href' => '/products?category=Surgery'],
+                                ['label' => 'Laboratory', 'href' => '/products?category=Laboratory'],
+                                ['label' => 'Monitoring', 'href' => '/products?category=Monitoring'],
+                                ['label' => 'Dental', 'href' => '/products?category=Dental'],
+                                ['label' => 'Rehabilitation', 'href' => '/products?category=Rehabilitation'],
+                                ['label' => 'Consumables', 'href' => '/products?category=Consumables'],
+                            ]],
+                            'Services' => ['icon' => 'wrench', 'links' => [
+                                ['label' => 'Equipment Repair', 'href' => '/booking'],
+                                ['label' => 'Maintenance Plans', 'href' => '/booking'],
+                                ['label' => 'Institutional Supply', 'href' => '/institutional-portal'],
+                                ['label' => 'Track Order', 'href' => '/track'],
+                            ]],
+                            'Company' => ['icon' => 'building-2', 'links' => [
+                                ['label' => 'Institutional Portal', 'href' => '/institutional-portal'],
+                                ['label' => 'About Cadical', 'href' => '/about'],
+                                ['label' => 'Contact Us', 'href' => '/contact'],
+                            ]],
+                        ];
+                    @endphp
+                    @foreach ($mobileSections as $label => $section)
+                        <div class="border-b border-slate-100 last:border-none">
+                            <button @click="toggleExpanded('{{ $label }}')" class="w-full flex items-center justify-between py-3 text-sm font-semibold text-slate-800">
+                                <span class="flex items-center gap-2"><i data-lucide="{{ $section['icon'] }}" class="w-[15px] h-[15px] text-cadical-500"></i>{{ $label }}</span>
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" :class="expanded === '{{ $label }}' && 'rotate-180'"></i>
+                            </button>
+                            <div x-show="expanded === '{{ $label }}'" x-cloak class="pb-2 pl-6 space-y-0">
+                                @foreach ($section['links'] as $link)
+                                    <a href="{{ url($link['href']) }}" @click="open = false" class="flex items-center gap-1.5 py-2 text-sm text-slate-600 hover:text-cadical-500 transition-colors">
+                                        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i>{{ $link['label'] }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+
+                    @auth
+                        <a href="{{ url('/dashboard') }}" @click="open = false" class="flex items-center gap-2 py-3 text-sm font-semibold text-slate-800 border-b border-slate-100">
+                            <i data-lucide="layout-dashboard" class="w-[15px] h-[15px] text-cadical-500"></i> My Account
+                        </a>
+                        <a href="{{ url('/notifications') }}" @click="open = false" class="flex items-center gap-2 py-3 text-sm font-semibold text-slate-800">
+                            <i data-lucide="bell" class="w-[15px] h-[15px] text-cadical-500"></i> Notifications
+                        </a>
+                    @endauth
+                </div>
+            </div>
+
+            <div class="px-4 py-4 flex flex-col gap-2.5 border-t border-slate-100 flex-shrink-0">
+                <a href="{{ url('/booking') }}" @click="open = false" class="bg-cadical-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold text-center">Book a Service</a>
+                @auth
+                    <form method="POST" action="{{ url('/auth/logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full border border-red-200 text-red-600 px-4 py-2.5 rounded-xl text-sm font-semibold text-center">Sign Out</button>
+                    </form>
+                @else
+                    <a href="{{ url('/auth/login') }}" @click="open = false" class="border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-sm font-semibold text-center">Sign In</a>
+                @endauth
+            </div>
         </div>
     </div>
 </nav>
