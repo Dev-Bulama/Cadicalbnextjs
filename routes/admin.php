@@ -29,4 +29,5 @@ Route::middleware(['auth', 'role:'.User::ROLE_SUPER_ADMIN.','.User::ROLE_ADMIN])
     Route::get('/tracking', fn () => view('admin.tracking'))->name('tracking');
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
     Route::get('/audit-logs', fn () => view('admin.audit-logs'))->name('audit-logs');
+    Route::get('/settings', fn () => view('admin.settings'))->name('settings');
 });

@@ -23,6 +23,7 @@
         ['name' => 'Tracking', 'href' => '/admin/tracking', 'icon' => 'map-pin'],
         ['name' => 'Analytics', 'href' => '/admin/analytics', 'icon' => 'bar-chart-3'],
         ['name' => 'Audit Logs', 'href' => '/admin/audit-logs', 'icon' => 'shield'],
+        ['name' => 'Settings', 'href' => '/admin/settings', 'icon' => 'settings'],
     ];
 @endphp
 <aside class="w-60 border-r border-slate-200 bg-white flex flex-col shrink-0">
