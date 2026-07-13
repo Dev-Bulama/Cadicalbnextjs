@@ -7,6 +7,7 @@
     @include('home.featured-products')
     @include('home.why')
     @include('home.stats')
+    @include('home.partners')
     @include('home.services')
     @include('home.tracking-showcase')
     @include('home.process')
