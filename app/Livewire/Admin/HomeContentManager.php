@@ -33,6 +33,11 @@ class HomeContentManager extends Component
             'metaFields' => ['eyebrow' => 'text', 'heading' => 'text'],
             'itemFields' => ['icon' => 'text', 'name' => 'text', 'sub' => 'text', 'href' => 'text', 'color' => 'text'],
         ],
+        'partners' => [
+            'label' => 'Partners & Brands', 'itemLabel' => 'Partner',
+            'metaFields' => ['eyebrow' => 'text', 'heading' => 'text'],
+            'itemFields' => ['name' => 'text', 'logo' => 'image', 'website' => 'text'],
+        ],
         'portals' => [
             'label' => 'Portals', 'itemLabel' => 'Portal',
             'metaFields' => ['eyebrow' => 'text', 'heading' => 'text', 'sub' => 'textarea'],
@@ -175,11 +180,12 @@ class HomeContentManager extends Component
 
     public function updated($property, $value): void
     {
-        if (preg_match('/^itemImages\.(\d+)$/', $property, $m) && $value instanceof TemporaryUploadedFile) {
+        if (preg_match('/^itemImages\.(\d+)\.(\w+)$/', $property, $m) && $value instanceof TemporaryUploadedFile) {
             $index = (int) $m[1];
+            $field = $m[2];
             $path = $value->store('home', 'public');
-            $this->items[$index]['image'] = '/storage/'.$path;
-            unset($this->itemImages[$index]);
+            $this->items[$index][$field] = '/storage/'.$path;
+            unset($this->itemImages[$index][$field]);
         }
 
         if (preg_match('/^metaImages\.(\w+)$/', $property, $m) && $value instanceof TemporaryUploadedFile) {
