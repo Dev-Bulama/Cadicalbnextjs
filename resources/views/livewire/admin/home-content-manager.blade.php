@@ -33,11 +33,11 @@
                             @if ($type === 'textarea')
                                 <textarea wire:model="meta.{{ $field }}" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mt-1"></textarea>
                             @elseif ($type === 'image')
-                                <input type="text" wire:model="meta.{{ $field }}" placeholder="e.g. mri.jpeg or /storage/home/xyz.jpg" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mt-1">
+                                <input type="text" wire:model="meta.{{ $field }}" placeholder="e.g. mri.jpeg, /storage/home/xyz.jpg, or a full https:// image URL" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mt-1">
                                 <input type="file" wire:model="metaImages.{{ $field }}" accept="image/*" class="w-full text-xs text-slate-500 mt-1.5">
                                 <div wire:loading wire:target="metaImages.{{ $field }}" class="text-xs text-cadical-500 mt-1">Uploading…</div>
                                 @if ($meta[$field] ?? false)
-                                    <img src="{{ str_starts_with($meta[$field], '/storage') ? url($meta[$field]) : asset($meta[$field]) }}" class="mt-2 h-16 rounded-lg border border-slate-100 object-cover">
+                                    <img src="{{ \App\Models\HomeSection::mediaUrl($meta[$field]) }}" class="mt-2 h-16 rounded-lg border border-slate-100 object-cover">
                                 @endif
                             @else
                                 <input type="text" wire:model="meta.{{ $field }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mt-1">
@@ -84,11 +84,11 @@
                                             <span class="text-sm text-slate-700">Highlighted / featured</span>
                                         </label>
                                     @elseif ($type === 'image')
-                                        <input type="text" wire:model="items.{{ $i }}.{{ $field }}" placeholder="e.g. mri.jpeg or /storage/home/xyz.jpg" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mt-1">
+                                        <input type="text" wire:model="items.{{ $i }}.{{ $field }}" placeholder="e.g. mri.jpeg, /storage/home/xyz.jpg, or a full https:// image URL" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mt-1">
                                         <input type="file" wire:model="itemImages.{{ $i }}.{{ $field }}" accept="image/*" class="w-full text-xs text-slate-500 mt-1.5">
                                         <div wire:loading wire:target="itemImages.{{ $i }}.{{ $field }}" class="text-xs text-cadical-500 mt-1">Uploading…</div>
                                         @if ($item[$field] ?? false)
-                                            <img src="{{ str_starts_with($item[$field], '/storage') ? url($item[$field]) : asset($item[$field]) }}" class="mt-2 h-16 rounded-lg border border-slate-100 object-cover">
+                                            <img src="{{ \App\Models\HomeSection::mediaUrl($item[$field]) }}" class="mt-2 h-16 rounded-lg border border-slate-100 object-cover">
                                         @endif
                                     @else
                                         <input type="text" wire:model="items.{{ $i }}.{{ $field }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mt-1">
