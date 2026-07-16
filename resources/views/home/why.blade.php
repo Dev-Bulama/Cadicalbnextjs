@@ -3,7 +3,7 @@
     $pillars = $section['items'];
     $meta = $section['meta'];
     $whyImage = $meta['image'] ?? 'test.jpeg';
-    $whyImageUrl = str_starts_with($whyImage, '/storage') ? url($whyImage) : asset($whyImage);
+    $whyImageUrl = \App\Models\HomeSection::mediaUrl($whyImage);
 @endphp
 <section id="why" class="py-20 px-4 md:px-8 bg-white">
     <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">

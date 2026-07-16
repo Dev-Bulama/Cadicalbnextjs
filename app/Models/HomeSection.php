@@ -22,4 +22,22 @@ class HomeSection extends Model
     {
         return static::where('section_key', $key)->value('content') ?? $default;
     }
+
+    /**
+     * Resolve a stored image reference into a renderable URL. Handles three
+     * shapes: a full external URL (hotlinked, e.g. a partner logo), an
+     * uploaded file under storage/app/public, or a bundled public/ asset.
+     */
+    public static function mediaUrl(?string $path): string
+    {
+        if (blank($path)) {
+            return '';
+        }
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        return str_starts_with($path, '/storage') ? url($path) : asset($path);
+    }
 }

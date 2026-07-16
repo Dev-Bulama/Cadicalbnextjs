@@ -68,34 +68,40 @@ class HomeSectionSeeder extends Seeder
 
             'partners' => [
                 'meta' => ['eyebrow' => 'Our Partners', 'heading' => 'Brands and manufacturers we work with'],
+                // 'logo' hotlinks Google's public favicon-by-domain service (no file storage
+                // needed) for partners whose official domain is unambiguous. Four names are
+                // too generic to map to one company with confidence (Skytec, Labtech, Finlab,
+                // Promed) — left blank, falling back to the text placeholder until confirmed.
+                // Every logo/website here is admin-editable at any time via
+                // /admin/homepage → Partners & Brands.
                 'items' => [
-                    ['name' => 'Mindray', 'logo' => '', 'website' => ''],
-                    ['name' => 'Spectrum Diagnostics', 'logo' => '', 'website' => ''],
-                    ['name' => 'HiMedia Laboratories', 'logo' => '', 'website' => ''],
-                    ['name' => 'Accumedia', 'logo' => '', 'website' => ''],
-                    ['name' => 'Juhel Nigeria Limited', 'logo' => '', 'website' => ''],
-                    ['name' => 'Drugfield Pharmaceuticals', 'logo' => '', 'website' => ''],
-                    ['name' => 'Dana Pharmaceuticals Limited', 'logo' => '', 'website' => ''],
-                    ['name' => 'Emzor Pharmaceutical Industries Ltd.', 'logo' => '', 'website' => ''],
-                    ['name' => 'Swiss Pharma Nigeria Ltd. (Swipha)', 'logo' => '', 'website' => ''],
-                    ['name' => 'Sysmex', 'logo' => '', 'website' => ''],
-                    ['name' => 'Roche', 'logo' => '', 'website' => ''],
-                    ['name' => 'Biobase', 'logo' => '', 'website' => ''],
-                    ['name' => 'Siemens', 'logo' => '', 'website' => ''],
-                    ['name' => 'Sonoscape', 'logo' => '', 'website' => ''],
-                    ['name' => 'Randox Laboratories', 'logo' => '', 'website' => ''],
-                    ['name' => 'Agappe Diagnostics', 'logo' => '', 'website' => ''],
-                    ['name' => 'Abbott Diagnostics', 'logo' => '', 'website' => ''],
-                    ['name' => 'Thermo Fisher Scientific', 'logo' => '', 'website' => ''],
-                    ['name' => 'SD Biosensor', 'logo' => '', 'website' => ''],
+                    ['name' => 'Mindray', 'logo' => self::favicon('mindray.com'), 'website' => 'https://www.mindray.com'],
+                    ['name' => 'Spectrum Diagnostics', 'logo' => self::favicon('spectrum-diagnostics.com'), 'website' => 'https://spectrum-diagnostics.com'],
+                    ['name' => 'HiMedia Laboratories', 'logo' => self::favicon('himedialabs.com'), 'website' => 'https://www.himedialabs.com'],
+                    ['name' => 'Accumedia', 'logo' => self::favicon('acumedia.com'), 'website' => 'https://www.acumedia.com'],
+                    ['name' => 'Juhel Nigeria Limited', 'logo' => self::favicon('juhelnigeria.com'), 'website' => 'https://juhelnigeria.com'],
+                    ['name' => 'Drugfield Pharmaceuticals', 'logo' => self::favicon('drugfieldpharma.com'), 'website' => 'https://www.drugfieldpharma.com'],
+                    ['name' => 'Dana Pharmaceuticals Limited', 'logo' => self::favicon('danapharmaceuticals.com'), 'website' => 'https://danapharmaceuticals.com'],
+                    ['name' => 'Emzor Pharmaceutical Industries Ltd.', 'logo' => self::favicon('emzorpharma.com'), 'website' => 'https://www.emzorpharma.com'],
+                    ['name' => 'Swiss Pharma Nigeria Ltd. (Swipha)', 'logo' => self::favicon('swiphanigeria.com'), 'website' => 'http://www.swiphanigeria.com'],
+                    ['name' => 'Sysmex', 'logo' => self::favicon('sysmex.com'), 'website' => 'https://www.sysmex.com'],
+                    ['name' => 'Roche', 'logo' => self::favicon('roche.com'), 'website' => 'https://www.roche.com'],
+                    ['name' => 'Biobase', 'logo' => self::favicon('biobase.cc'), 'website' => 'https://www.biobase.cc'],
+                    ['name' => 'Siemens', 'logo' => self::favicon('siemens-healthineers.com'), 'website' => 'https://www.siemens-healthineers.com'],
+                    ['name' => 'Sonoscape', 'logo' => self::favicon('sonoscape.com'), 'website' => 'https://www.sonoscape.com'],
+                    ['name' => 'Randox Laboratories', 'logo' => self::favicon('randox.com'), 'website' => 'https://www.randox.com'],
+                    ['name' => 'Agappe Diagnostics', 'logo' => self::favicon('agappe.com'), 'website' => 'https://www.agappe.com'],
+                    ['name' => 'Abbott Diagnostics', 'logo' => self::favicon('abbott.com'), 'website' => 'https://www.abbott.com'],
+                    ['name' => 'Thermo Fisher Scientific', 'logo' => self::favicon('thermofisher.com'), 'website' => 'https://www.thermofisher.com'],
+                    ['name' => 'SD Biosensor', 'logo' => self::favicon('sdbiosensor.com'), 'website' => 'https://www.sdbiosensor.com'],
                     ['name' => 'Skytec', 'logo' => '', 'website' => ''],
-                    ['name' => 'Biorapid', 'logo' => '', 'website' => ''],
-                    ['name' => 'Olympus', 'logo' => '', 'website' => ''],
+                    ['name' => 'Biorapid', 'logo' => self::favicon('biorapidiag.com'), 'website' => 'https://biorapidiag.com'],
+                    ['name' => 'Olympus', 'logo' => self::favicon('olympus-lifescience.com'), 'website' => 'https://www.olympus-lifescience.com'],
                     ['name' => 'Labtech', 'logo' => '', 'website' => ''],
-                    ['name' => 'Bio-Rad Laboratories', 'logo' => '', 'website' => ''],
+                    ['name' => 'Bio-Rad Laboratories', 'logo' => self::favicon('bio-rad.com'), 'website' => 'https://www.bio-rad.com'],
                     ['name' => 'Finlab', 'logo' => '', 'website' => ''],
                     ['name' => 'Promed', 'logo' => '', 'website' => ''],
-                    ['name' => 'Accu-Chek', 'logo' => '', 'website' => ''],
+                    ['name' => 'Accu-Chek', 'logo' => self::favicon('accu-chek.com'), 'website' => 'https://www.accu-chek.com'],
                 ],
             ],
 
@@ -225,5 +231,16 @@ class HomeSectionSeeder extends Seeder
         }
 
         $this->command->info('  Homepage content sections seeded ('.count($sections).')');
+    }
+
+    /**
+     * Hotlinks a partner logo via Google's public favicon-by-domain service
+     * rather than a self-hosted file, since this seeder cannot download or
+     * verify third-party brand assets. Editable per-partner from the admin
+     * CMS once real hi-res logos are uploaded.
+     */
+    private static function favicon(string $domain): string
+    {
+        return 'https://www.google.com/s2/favicons?sz=256&domain='.$domain;
     }
 }

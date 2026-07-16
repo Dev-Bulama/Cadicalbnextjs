@@ -3,7 +3,7 @@
     $cities = $section['items'];
     $meta = $section['meta'];
     $coverageImage = $meta['image'] ?? 'deliveries.png';
-    $coverageImageUrl = str_starts_with($coverageImage, '/storage') ? url($coverageImage) : asset($coverageImage);
+    $coverageImageUrl = \App\Models\HomeSection::mediaUrl($coverageImage);
 @endphp
 <section class="py-20 px-4 md:px-8 bg-cadical-700 relative overflow-hidden">
     <div class="absolute inset-0" style="background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 40px 40px;"></div>
