@@ -7,7 +7,7 @@
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <x-admin.stat-card icon="banknote" label="Total Revenue" value="&#8358;{{ number_format($stats['total_revenue']) }}" color="emerald" />
+        <x-admin.stat-card icon="banknote" label="Total Revenue" value="₦{{ number_format($stats['total_revenue']) }}" color="emerald" />
         <x-admin.stat-card icon="shopping-cart" label="Total Orders" value="{{ number_format($stats['total_orders']) }}" color="cadical" />
         <x-admin.stat-card icon="clock" label="Pending Orders" value="{{ number_format($stats['pending_orders']) }}" color="amber" />
         <x-admin.stat-card icon="truck" label="Pending Suppliers" value="{{ number_format($stats['pending_suppliers']) }}" color="violet" />
