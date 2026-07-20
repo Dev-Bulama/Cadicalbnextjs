@@ -10,7 +10,7 @@
         </button>
     </div>
 
-    <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+    <div class="bg-white rounded-2xl border border-slate-100 overflow-x-auto">
         <table class="w-full text-sm">
             <thead class="bg-slate-50 text-slate-400 text-xs uppercase tracking-wider">
                 <tr>
