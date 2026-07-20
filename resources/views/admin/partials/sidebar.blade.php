@@ -26,8 +26,20 @@
         ['name' => 'Settings', 'href' => '/admin/settings', 'icon' => 'settings'],
     ];
 @endphp
-<aside class="w-60 border-r border-slate-200 bg-white flex flex-col shrink-0">
-    <div class="px-5 py-5 border-b border-slate-200">
+<div
+    x-show="mobileNav"
+    x-cloak
+    @click="mobileNav = false"
+    x-transition:enter="transition-opacity ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+    x-transition:leave="transition-opacity ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+    class="fixed inset-0 bg-slate-900/50 z-40 lg:hidden"
+></div>
+
+<aside
+    class="w-72 lg:w-60 border-r border-slate-200 bg-white flex flex-col shrink-0 fixed inset-y-0 left-0 z-50 transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 lg:z-auto"
+    :class="mobileNav ? 'translate-x-0' : '-translate-x-full'"
+>
+    <div class="px-5 py-5 border-b border-slate-200 flex items-center justify-between">
         <a href="{{ url('/admin/dashboard') }}" class="flex items-center gap-2.5">
             <div class="w-8 h-8 bg-cadical-500 rounded-lg flex items-center justify-center">
                 <span class="text-white font-bold text-sm">C</span>
@@ -37,13 +49,16 @@
                 <p class="text-[10px] text-slate-400 leading-none mt-0.5">Admin Console</p>
             </div>
         </a>
+        <button @click="mobileNav = false" class="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-50">
+            <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
     </div>
 
     <nav class="flex-1 overflow-y-auto p-3 space-y-0.5">
         @foreach ($navItems as $item)
             @if (! isset($item['children']))
                 @php $isActive = request()->is(ltrim($item['href'], '/')); @endphp
-                <a href="{{ url($item['href']) }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ $isActive ? 'bg-cadical-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
+                <a href="{{ url($item['href']) }}" @click="mobileNav = false" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ $isActive ? 'bg-cadical-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
                     <i data-lucide="{{ $item['icon'] }}" class="w-[17px] h-[17px]"></i> {{ $item['name'] }}
                 </a>
             @else
@@ -59,7 +74,7 @@
                     <div x-show="open" x-cloak class="ml-6 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
                         @foreach ($item['children'] as $child)
                             @php $childIsActive = request()->is(ltrim($child['href'], '/').'*') || request()->is(ltrim($child['href'], '/')); @endphp
-                            <a href="{{ url($child['href']) }}" class="block px-2 py-1.5 rounded-md text-xs font-medium transition-colors {{ $childIsActive ? 'text-cadical-500 bg-cadical-500/5' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
+                            <a href="{{ url($child['href']) }}" @click="mobileNav = false" class="block px-2 py-1.5 rounded-md text-xs font-medium transition-colors {{ $childIsActive ? 'text-cadical-500 bg-cadical-500/5' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50' }}">
                                 {{ $child['name'] }}
                             </a>
                         @endforeach
