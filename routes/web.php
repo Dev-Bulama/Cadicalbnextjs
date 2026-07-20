@@ -45,6 +45,11 @@ Route::prefix('auth')->group(function () {
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('register')->middleware('guest');
     Route::post('/register', [RegisteredUserController::class, 'store'])->middleware('guest');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout')->middleware('auth');
+    // Mobile Safari sometimes issues a GET instead of the form's POST when a submit
+    // button is long-pressed and "Open in New Tab" is chosen — accept GET too so
+    // logout still works in that case. Logging out has no destructive side effect
+    // beyond ending the current session, so this is a safe accommodation.
+    Route::get('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth');
 });
 
 // ── Authenticated dashboard (role redirect target) ─────────────────────────
