@@ -6,15 +6,25 @@ use App\Models\Setting;
 use App\Providers\SettingsServiceProvider;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\WithFileUploads;
 
 class SettingsManager extends Component
 {
+    use WithFileUploads;
+
     /**
      * Field schema per group. Each field key is the dotted config() path it
      * overrides at runtime. 'password' fields are never re-displayed once
      * saved — leaving one blank on save keeps the existing stored value.
      */
     public const GROUPS = [
+        'branding' => [
+            'label' => 'Branding',
+            'fields' => [
+                'site.logo' => ['label' => 'Site Logo', 'type' => 'image', 'hint' => 'Shown in the navbar and footer. Leave blank to use the default logo.'],
+            ],
+        ],
         'payments' => [
             'label' => 'Payment Gateways',
             'fields' => [
@@ -40,12 +50,15 @@ class SettingsManager extends Component
         ],
     ];
 
-    public string $activeGroup = 'payments';
+    public string $activeGroup = 'branding';
 
     public array $values = [];
 
     /** @var array<string, bool> whether a password-type field currently has a stored value */
     public array $configured = [];
+
+    /** @var TemporaryUploadedFile[] keyed by field index, for image-type fields */
+    public array $valueFiles = [];
 
     public function mount(): void
     {
@@ -55,7 +68,18 @@ class SettingsManager extends Component
     public function switchGroup(string $key): void
     {
         $this->activeGroup = $key;
+        $this->valueFiles = [];
         $this->loadGroup($key);
+    }
+
+    public function updated($property, $value): void
+    {
+        if (preg_match('/^valueFiles\.(\d+)$/', $property, $m) && $value instanceof TemporaryUploadedFile) {
+            $index = (int) $m[1];
+            $path = $value->store('branding', 'public');
+            $this->values[$index] = '/storage/'.$path;
+            unset($this->valueFiles[$index]);
+        }
     }
 
     /**
