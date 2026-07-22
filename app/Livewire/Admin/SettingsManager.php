@@ -3,8 +3,6 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Setting;
-use App\Providers\SettingsServiceProvider;
-use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
@@ -126,7 +124,6 @@ class SettingsManager extends Component
             config([$configKey => $stored]);
         }
 
-        Cache::forget(SettingsServiceProvider::CACHE_KEY);
         $this->loadGroup($this->activeGroup);
 
         $this->dispatch('cart-toast', message: self::GROUPS[$this->activeGroup]['label'].' saved');

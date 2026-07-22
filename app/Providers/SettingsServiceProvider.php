@@ -3,15 +3,12 @@
 namespace App\Providers;
 
 use App\Models\Setting;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Throwable;
 
 class SettingsServiceProvider extends ServiceProvider
 {
-    public const CACHE_KEY = 'app.settings.overrides';
-
     public function boot(): void
     {
         try {
@@ -19,9 +16,11 @@ class SettingsServiceProvider extends ServiceProvider
                 return;
             }
 
-            $overrides = Cache::rememberForever(self::CACHE_KEY, fn () => Setting::allKeyed());
-
-            foreach ($overrides as $key => $value) {
+            // Read straight from the DB on every request rather than caching —
+            // this table stays small and is read once per request, and a stale
+            // cache here previously meant an admin-saved change (e.g. the site
+            // logo) could silently fail to appear on the public site.
+            foreach (Setting::allKeyed() as $key => $value) {
                 if ($value !== null && $value !== '') {
                     config([$key => $value]);
                 }
