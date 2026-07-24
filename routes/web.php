@@ -15,10 +15,10 @@ Route::get('/products', fn () => view('products'))->name('products');
 
 Route::get('/cart', fn () => view('cart'))->name('cart');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/checkout', fn () => view('checkout'))->name('checkout');
-    Route::post('/checkout/verify', [PaymentController::class, 'verify'])->name('checkout.verify');
-});
+// Checkout is open to guests — see checkout.blade.php for the login/register prompt
+// and PaymentController::verify() for how guest orders are recorded.
+Route::get('/checkout', fn () => view('checkout'))->name('checkout');
+Route::post('/checkout/verify', [PaymentController::class, 'verify'])->name('checkout.verify');
 
 Route::get('/booking', fn () => view('booking'))->name('booking');
 Route::get('/service-booking', fn () => view('service-booking'))->name('service-booking');

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
-    'user_id', 'total_amount', 'status', 'payment_id', 'payment_method',
+    'user_id', 'guest_name', 'guest_email', 'guest_phone', 'total_amount', 'status', 'payment_id', 'payment_method',
     'shipping_address', 'notes', 'tracking_code', 'tracking_number', 'carrier',
 ])]
 class Order extends Model
@@ -45,6 +45,16 @@ class Order extends Model
     public function trackingEvents(): HasMany
     {
         return $this->hasMany(TrackingEvent::class);
+    }
+
+    public function customerName(): string
+    {
+        return $this->user->name ?? $this->guest_name ?? 'Guest';
+    }
+
+    public function customerEmail(): ?string
+    {
+        return $this->user->email ?? $this->guest_email;
     }
 
     public static function generateTrackingCode(): string

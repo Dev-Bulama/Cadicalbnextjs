@@ -13,13 +13,26 @@
     x-data="checkoutPage({
         publicKeyFlutterwave: {{ Illuminate\Support\Js::from(config('services.flutterwave.public_key')) }},
         publicKeyPaystack: {{ Illuminate\Support\Js::from(config('services.paystack.public_key')) }},
-        userEmail: {{ Illuminate\Support\Js::from($user->email) }},
-        userName: {{ Illuminate\Support\Js::from($user->name) }},
+        userEmail: {{ Illuminate\Support\Js::from($user->email ?? '') }},
+        userName: {{ Illuminate\Support\Js::from($user->name ?? '') }},
+        isGuest: {{ Illuminate\Support\Js::from(! $user) }},
         verifyUrl: {{ Illuminate\Support\Js::from(url('/checkout/verify')) }},
         csrfToken: {{ Illuminate\Support\Js::from(csrf_token()) }},
     })"
     class="min-h-screen flex flex-col bg-slate-50 pt-16"
 >
+    @guest
+        <div class="bg-cadical-500/5 border-b border-cadical-500/20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+                <p class="text-sm text-slate-600">Checking out as a guest. <span class="hidden sm:inline">Create an account to track orders and check out faster next time.</span></p>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="{{ url('/auth/login') }}" class="text-sm font-semibold text-cadical-500 hover:text-cadical-700 px-3 py-1.5">Log In</a>
+                    <a href="{{ url('/auth/register') }}" class="text-sm font-semibold bg-cadical-500 hover:bg-cadical-700 text-white px-3 py-1.5 rounded-lg">Create Account</a>
+                </div>
+            </div>
+        </div>
+    @endguest
+
     {{-- Progress steps --}}
     <div class="border-b border-slate-200 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -63,8 +76,8 @@
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-semibold mb-2">Email</label>
-                                    <input type="email" x-model="form.email" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cadical-500/20 focus:border-cadical-500">
+                                    <label class="block text-sm font-semibold mb-2">Email <span x-show="isGuest">*</span></label>
+                                    <input type="email" x-model="form.email" :required="isGuest" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cadical-500/20 focus:border-cadical-500">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold mb-2">Phone</label>
@@ -206,12 +219,13 @@
             step: 'shipping',
             gateway: 'flutterwave',
             isProcessing: false,
+            isGuest: cfg.isGuest,
             orderResult: null,
             form: { firstName: '', lastName: '', email: cfg.userEmail, phone: '', address: '', city: '', state: '', zipCode: '', country: '' },
             get stepIndex() { return ['shipping', 'payment', 'confirmation'].indexOf(this.step) },
 
             init() {
-                if ($store.cart.items.length === 0 && this.step !== 'confirmation') {
+                if (this.$store.cart.items.length === 0 && this.step !== 'confirmation') {
                     window.location.href = '{{ url('/cart') }}';
                 }
             },
@@ -221,38 +235,59 @@
                     this.$dispatch('cart-toast', { message: 'Please fill in all required fields' });
                     return;
                 }
+                if (this.isGuest && !this.form.email) {
+                    this.$dispatch('cart-toast', { message: 'Email is required so we can confirm your order' });
+                    return;
+                }
                 this.step = 'payment';
             },
 
             async pay() {
                 if (this.isProcessing) return;
                 this.isProcessing = true;
-                const amount = $store.cart.subtotal;
+                const amount = this.$store.cart.subtotal;
                 const txRef = 'CAD-' + Date.now();
 
-                if (this.gateway === 'flutterwave') {
-                    FlutterwaveCheckout({
-                        public_key: cfg.publicKeyFlutterwave,
-                        tx_ref: txRef,
-                        amount: amount,
-                        currency: 'NGN',
-                        payment_options: 'card, banktransfer, ussd',
-                        customer: { email: this.form.email, phone_number: this.form.phone, name: `${this.form.firstName} ${this.form.lastName}` },
-                        customizations: { title: 'Cadical Store', description: 'Payment for medical products', logo: '{{ asset('images/logo.png') }}' },
-                        callback: (response) => this.handleGatewayResponse('flutterwave', response.transaction_id),
-                        onclose: () => { this.isProcessing = false; this.$dispatch('cart-toast', { message: 'Payment cancelled' }) },
-                    });
-                } else {
-                    const handler = PaystackPop.setup({
-                        key: cfg.publicKeyPaystack,
-                        email: this.form.email || cfg.userEmail,
-                        amount: Math.round(amount * 100),
-                        currency: 'NGN',
-                        ref: txRef,
-                        callback: (response) => this.handleGatewayResponse('paystack', response.reference),
-                        onClose: () => { this.isProcessing = false; this.$dispatch('cart-toast', { message: 'Payment cancelled' }) },
-                    });
-                    handler.openIframe();
+                try {
+                    if (this.gateway === 'flutterwave') {
+                        if (typeof FlutterwaveCheckout !== 'function') {
+                            throw new Error('Flutterwave checkout failed to load — check your connection and try again.');
+                        }
+                        if (!cfg.publicKeyFlutterwave) {
+                            throw new Error('Flutterwave is not configured yet. Try Paystack, or contact support.');
+                        }
+                        FlutterwaveCheckout({
+                            public_key: cfg.publicKeyFlutterwave,
+                            tx_ref: txRef,
+                            amount: amount,
+                            currency: 'NGN',
+                            payment_options: 'card, banktransfer, ussd',
+                            customer: { email: this.form.email, phone_number: this.form.phone, name: `${this.form.firstName} ${this.form.lastName}` },
+                            customizations: { title: 'Cadical Store', description: 'Payment for medical products', logo: '{{ asset('images/logo.png') }}' },
+                            callback: (response) => this.handleGatewayResponse('flutterwave', response.transaction_id),
+                            onclose: () => { this.isProcessing = false; this.$dispatch('cart-toast', { message: 'Payment cancelled' }) },
+                        });
+                    } else {
+                        if (typeof PaystackPop === 'undefined') {
+                            throw new Error('Paystack checkout failed to load — check your connection and try again.');
+                        }
+                        if (!cfg.publicKeyPaystack) {
+                            throw new Error('Paystack is not configured yet. Try Flutterwave, or contact support.');
+                        }
+                        const handler = PaystackPop.setup({
+                            key: cfg.publicKeyPaystack,
+                            email: this.form.email || cfg.userEmail,
+                            amount: Math.round(amount * 100),
+                            currency: 'NGN',
+                            ref: txRef,
+                            callback: (response) => this.handleGatewayResponse('paystack', response.reference),
+                            onClose: () => { this.isProcessing = false; this.$dispatch('cart-toast', { message: 'Payment cancelled' }) },
+                        });
+                        handler.openIframe();
+                    }
+                } catch (e) {
+                    this.isProcessing = false;
+                    this.$dispatch('cart-toast', { message: e.message || 'Could not open the payment window' });
                 }
             },
 
@@ -269,14 +304,17 @@
                         body: JSON.stringify({
                             gateway,
                             reference: String(reference),
-                            cart_items: $store.cart.items.map(i => ({ id: i.id, quantity: i.quantity })),
+                            cart_items: this.$store.cart.items.map(i => ({ id: i.id, quantity: i.quantity })),
                             shipping_address: `${this.form.address}, ${this.form.city}, ${this.form.state} ${this.form.zipCode}, ${this.form.country}`.trim(),
+                            guest_name: cfg.isGuest ? `${this.form.firstName} ${this.form.lastName}`.trim() : undefined,
+                            guest_email: cfg.isGuest ? this.form.email : undefined,
+                            guest_phone: cfg.isGuest ? this.form.phone : undefined,
                         }),
                     });
                     const data = await res.json();
                     if (data.status === 'success') {
                         this.orderResult = data.order;
-                        $store.cart.clearCart();
+                        this.$store.cart.clearCart();
                         this.step = 'confirmation';
                         this.$dispatch('cart-toast', { message: 'Payment successful!' });
                     } else {

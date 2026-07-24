@@ -24,7 +24,7 @@
                 @forelse ($recentOrders as $order)
                     <div class="flex items-center justify-between text-sm">
                         <div>
-                            <p class="font-medium text-slate-900">{{ $order->user->name ?? 'Guest' }}</p>
+                            <p class="font-medium text-slate-900">{{ $order->customerName() }}</p>
                             <p class="text-slate-400 text-xs font-mono">{{ $order->tracking_code }}</p>
                         </div>
                         <div class="text-right">
