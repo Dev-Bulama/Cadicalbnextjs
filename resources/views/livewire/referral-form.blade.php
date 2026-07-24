@@ -18,7 +18,7 @@
                 </div>
                 <div class="hidden sm:block text-right">
                     <div class="inline-block bg-yellow-500 text-[#1B3A5C] text-xs font-bold px-3 py-1 rounded-full mb-2 tracking-wider">Official Form</div>
-                    <h2 class="text-2xl font-semibold text-white">Referral & Supply Request Form</h2>
+                    <h2 class="text-2xl font-semibold text-white">Referral Form</h2>
                     <p class="text-xs sm:text-sm text-blue-200 opacity-75 mt-1">Nigeria's Healthcare Supply Partner</p>
                 </div>
             </div>
