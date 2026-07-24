@@ -251,7 +251,7 @@
                 try {
                     if (this.gateway === 'flutterwave') {
                         if (typeof FlutterwaveCheckout !== 'function') {
-                            throw new Error('Flutterwave checkout failed to load — check your connection and try again.');
+                            throw new Error('Flutterwave checkout failed to load. Check your connection and try again.');
                         }
                         if (!cfg.publicKeyFlutterwave) {
                             throw new Error('Flutterwave is not configured yet. Try Paystack, or contact support.');
@@ -269,7 +269,7 @@
                         });
                     } else {
                         if (typeof PaystackPop === 'undefined') {
-                            throw new Error('Paystack checkout failed to load — check your connection and try again.');
+                            throw new Error('Paystack checkout failed to load. Check your connection and try again.');
                         }
                         if (!cfg.publicKeyPaystack) {
                             throw new Error('Paystack is not configured yet. Try Flutterwave, or contact support.');

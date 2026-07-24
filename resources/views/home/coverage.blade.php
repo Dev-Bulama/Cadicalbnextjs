@@ -27,7 +27,7 @@
         </div>
 
         <div x-reveal="0.1" class="flex justify-center">
-            <div class="relative w-[300px] md:w-[360px] aspect-square rounded-2xl overflow-hidden border border-white/20 shadow-2xl">
+            <div class="relative w-full max-w-md aspect-[16/9] rounded-2xl overflow-hidden border border-white/20 shadow-2xl">
                 <img src="{{ $coverageImageUrl }}" alt="Nationwide Delivery" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-tr from-cadical-700/40 to-transparent"></div>
             </div>

@@ -13,12 +13,12 @@
                     </div>
                     <div>
                         <h1 class="text-2xl sm:text-3xl font-semibold text-white">Cadical Solutions Ltd</h1>
-                        <p class="text-xs sm:text-sm text-blue-200 opacity-75 tracking-wide mt-1">www.cadical.com &bull; Healthcare Supplies</p>
+                        <p class="text-xs sm:text-sm text-blue-200 opacity-75 tracking-wide mt-1">cadicalsolutions.com &bull; Healthcare Supplies</p>
                     </div>
                 </div>
                 <div class="hidden sm:block text-right">
                     <div class="inline-block bg-yellow-500 text-[#1B3A5C] text-xs font-bold px-3 py-1 rounded-full mb-2 tracking-wider">Official Form</div>
-                    <h2 class="text-2xl font-semibold text-white">Supply & Services Request Form</h2>
+                    <h2 class="text-2xl font-semibold text-white">Referral & Supply Request Form</h2>
                     <p class="text-xs sm:text-sm text-blue-200 opacity-75 mt-1">Nigeria's Healthcare Supply Partner</p>
                 </div>
             </div>
@@ -46,8 +46,8 @@
             @if ($submitted)
                 <div class="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg p-8 sm:p-12 text-center">
                     <div class="text-5xl sm:text-6xl mb-4">✅</div>
-                    <h3 class="text-2xl sm:text-3xl font-semibold text-green-700 mb-2">Supply Request Submitted!</h3>
-                    <p class="text-green-600 mb-4">Your supply request has been received by Cadical Solutions Ltd. A confirmation will be sent to your email or phone shortly.</p>
+                    <h3 class="text-2xl sm:text-3xl font-semibold text-green-700 mb-2">Referral Submitted!</h3>
+                    <p class="text-green-600 mb-4">Your referral has been received by Cadical Solutions Ltd. A confirmation will be sent to your email or phone shortly.</p>
                     <p class="font-bold text-green-700 mb-6">Order Reference ID: <span class="text-lg text-green-600">{{ $refId }}</span></p>
                     <button wire:click="resetForm" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-lg">Submit Another Request</button>
                 </div>
@@ -65,7 +65,7 @@
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">🏥</div>
                                 <div>
-                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">Section 1 — Contact / Ordering Party</h3>
+                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">Section 1: Contact / Ordering Party</h3>
                                     <p class="text-xs sm:text-sm text-gray-500 mt-1">Details of the healthcare professional, facility, or affiliate partner placing this supply request</p>
                                 </div>
                             </div>
@@ -74,7 +74,7 @@
                                 <div>
                                     <label class="block text-xs sm:text-sm font-bold text-[#1B3A5C] uppercase tracking-wider mb-2">Designation / Role <span class="text-red-600">*</span></label>
                                     <select wire:model="referrerDesignation" class="{{ $inputClass }}">
-                                        <option value="">— Select Role —</option>
+                                        <option value="">Select Role</option>
                                         @foreach (['Medical Laboratory Technician', 'Medical Laboratory Scientist', 'Medical Doctor (GP)', 'Pharmacist', 'Nurse / Midwife', 'Community Health Officer (CHO)', 'Community Health Extension Worker (CHEW)', 'Hospital Administrator', 'Affiliate Marketer', 'Other'] as $opt)
                                             <option>{{ $opt }}</option>
                                         @endforeach
@@ -84,7 +84,7 @@
                                 <div>
                                     <label class="block text-xs sm:text-sm font-bold text-[#1B3A5C] uppercase tracking-wider mb-2">Facility Type <span class="text-red-600">*</span></label>
                                     <select wire:model="referrerFacilityType" class="{{ $inputClass }}">
-                                        <option value="">— Select Type —</option>
+                                        <option value="">Select Type</option>
                                         @foreach (['Primary Health Centre (PHC)', 'General Hospital', 'Teaching Hospital', 'Private Hospital / Clinic', 'Medical Laboratory', 'Pharmacy', 'NGO / Faith-Based Organisation', 'Individual Practice', 'Other'] as $opt)
                                             <option>{{ $opt }}</option>
                                         @endforeach
@@ -110,7 +110,7 @@
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">👤</div>
                                 <div>
-                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">Section 2 — Client / Facility Details</h3>
+                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">Section 2: Client / Facility Details</h3>
                                     <p class="text-xs sm:text-sm text-gray-500 mt-1">Details of the client, facility, or institution requesting Cadical's supplies or services</p>
                                 </div>
                             </div>
@@ -119,7 +119,7 @@
                                 <div>
                                     <label class="block text-xs sm:text-sm font-bold text-[#1B3A5C] uppercase tracking-wider mb-2">Client Type <span class="text-red-600">*</span></label>
                                     <select wire:model="clientType" class="{{ $inputClass }}">
-                                        <option value="">— Select —</option>
+                                        <option value="">Select</option>
                                         @foreach (['Private Hospital / Clinic', 'Government Hospital', 'Primary Health Centre (PHC)', 'Medical / Diagnostic Laboratory', 'Pharmacy / Drug Store', 'Individual Healthcare Professional', 'NGO / Faith-Based Organisation', 'Research Institution', 'Other'] as $opt)
                                             <option>{{ $opt }}</option>
                                         @endforeach
@@ -136,7 +136,7 @@
                                 </div>
                                 <div><label class="block text-xs sm:text-sm font-bold text-[#1B3A5C] uppercase tracking-wider mb-2">LGA</label><input wire:model="clientLGA" placeholder="e.g. Kaura LGA" class="{{ $inputClass }}"></div>
                                 <div class="sm:col-span-2"><label class="block text-xs sm:text-sm font-bold text-[#1B3A5C] uppercase tracking-wider mb-2">Client / Facility Address</label><input wire:model="clientAddress" placeholder="Street, Town / City, State" class="{{ $inputClass }}"></div>
-                                <div class="sm:col-span-2"><label class="block text-xs sm:text-sm font-bold text-[#1B3A5C] uppercase tracking-wider mb-2">Reason for Supply Request <span class="text-red-600">*</span></label><textarea wire:model="reasonForRequest" placeholder="Describe what the client or facility needs — e.g. restocking diagnostic kits, setting up a new laboratory, or fulfilling a specific supply requirement..." class="{{ $inputClass }} resize-none min-h-24"></textarea></div>
+                                <div class="sm:col-span-2"><label class="block text-xs sm:text-sm font-bold text-[#1B3A5C] uppercase tracking-wider mb-2">Reason for Supply Request <span class="text-red-600">*</span></label><textarea wire:model="reasonForRequest" placeholder="Describe what the client or facility needs, e.g. restocking diagnostic kits, setting up a new laboratory, or fulfilling a specific supply requirement..." class="{{ $inputClass }} resize-none min-h-24"></textarea></div>
                             </div>
                         </div>
                     @endif
@@ -147,7 +147,7 @@
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">🧪</div>
                                 <div>
-                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">Section 3 — Supply & Product Request</h3>
+                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">Section 3: Supply & Product Request</h3>
                                     <p class="text-xs sm:text-sm text-gray-500 mt-1">Specify the healthcare supplies, diagnostic products, or services required</p>
                                 </div>
                             </div>
@@ -180,7 +180,7 @@
                             <div>
                                 <label class="block text-xs sm:text-sm font-bold text-[#1B3A5C] uppercase tracking-wider mb-4">Urgency Level <span class="text-red-600">*</span></label>
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                    @foreach ([['routine', '✅ Routine', 'bg-green-50 border-green-400'], ['urgent', '⚠️ Urgent (24–48hrs)', 'bg-yellow-50 border-yellow-400'], ['emergency', '🚨 Emergency (Same Day)', 'bg-red-50 border-red-400']] as [$val, $label, $color])
+                                    @foreach ([['routine', '✅ Routine', 'bg-green-50 border-green-400'], ['urgent', '⚠️ Urgent (24-48hrs)', 'bg-yellow-50 border-yellow-400'], ['emergency', '🚨 Emergency (Same Day)', 'bg-red-50 border-red-400']] as [$val, $label, $color])
                                         <button type="button" wire:click="$set('urgencyLevel', '{{ $val }}')" class="py-3 px-4 rounded-lg border-2 font-semibold transition-all {{ $urgencyLevel === $val ? $color : 'border-gray-200 bg-blue-50' }}">{{ $label }}</button>
                                     @endforeach
                                 </div>
@@ -191,11 +191,11 @@
                                 <div>
                                     <label class="block text-xs sm:text-sm font-bold text-[#1B3A5C] uppercase tracking-wider mb-2">Preferred Delivery Method</label>
                                     <select wire:model="deliveryMethod" class="{{ $inputClass }}">
-                                        <option value="">— Select —</option>
+                                        <option value="">Select</option>
                                         @foreach (['Pickup from Cadical Office', 'Courier Delivery', 'State Distributor / Agent', 'Dispatch Rider'] as $opt)<option>{{ $opt }}</option>@endforeach
                                     </select>
                                 </div>
-                                <div class="sm:col-span-2"><label class="block text-xs sm:text-sm font-bold text-[#1B3A5C] uppercase tracking-wider mb-2">Additional Notes / Special Instructions</label><textarea wire:model="additionalNotes" placeholder="Brand preferences, cold chain requirements, delivery instructions, alternative products, or any other supply-related notes..." class="{{ $inputClass }} resize-none min-h-24"></textarea></div>
+                                <div class="sm:col-span-2"><label class="block text-xs sm:text-sm font-bold text-[#1B3A5C] uppercase tracking-wider mb-2">Additional Notes / Special Instructions</label><textarea wire:model="additionalNotes" placeholder="Brand preferences, cold chain requirements, delivery instructions, alternative products, or any other supply related notes..." class="{{ $inputClass }} resize-none min-h-24"></textarea></div>
                             </div>
                         </div>
                     @endif
@@ -206,8 +206,8 @@
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">🔗</div>
                                 <div>
-                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">Section 4 — Supply Referral & Affiliate Tracking</h3>
-                                    <p class="text-xs sm:text-sm text-gray-500 mt-1">For affiliate partners referring clients to Cadical — commission tracking and order attribution</p>
+                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">Section 4: Supply Referral & Affiliate Tracking</h3>
+                                    <p class="text-xs sm:text-sm text-gray-500 mt-1">For affiliate partners referring clients to Cadical: commission tracking and order attribution</p>
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -219,14 +219,14 @@
                                 <div>
                                     <label class="block text-xs sm:text-sm font-bold text-[#1B3A5C] uppercase tracking-wider mb-2">Referred Via</label>
                                     <select wire:model="referredVia" class="{{ $inputClass }}">
-                                        <option value="">— Select Channel —</option>
+                                        <option value="">Select Channel</option>
                                         @foreach (['Direct Visit (www.cadical.com)', 'WhatsApp Referral', 'SMS / Phone Call', 'Community Outreach', 'Hospital Network', 'Social Media', 'Word of Mouth'] as $opt)<option>{{ $opt }}</option>@endforeach
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-xs sm:text-sm font-bold text-[#1B3A5C] uppercase tracking-wider mb-2">Payment Preference</label>
                                     <select wire:model="paymentPreference" class="{{ $inputClass }}">
-                                        <option value="">— Select —</option>
+                                        <option value="">Select</option>
                                         @foreach (['Bank Transfer', 'POS / Card Payment', 'USSD Payment', 'Cash on Delivery', 'Institutional Purchase Order', 'Monthly Supply Agreement'] as $opt)<option>{{ $opt }}</option>@endforeach
                                     </select>
                                 </div>

@@ -9,8 +9,8 @@
             <span class="inline-block text-white/80 text-xs font-semibold tracking-widest uppercase border border-white/20 bg-white/10 px-4 py-1.5 rounded-full mb-6">Institutional Portal</span>
             <h1 class="text-3xl md:text-5xl font-bold mb-5 leading-tight">Healthcare Supply, <br><span class="text-emerald-300">Simplified for Institutions.</span></h1>
             <p class="text-white/75 max-w-xl mx-auto mb-8">Join hundreds of Nigerian hospitals, clinics, and laboratories sourcing medical supplies, scheduling maintenance, and managing procurement through one verified portal.</p>
-            <button wire:click="start" class="bg-accent hover:bg-accent-600 text-white px-7 py-3.5 rounded-xl font-semibold transition-all hover:scale-105 shadow-lg">Get Started — It's Free &rarr;</button>
-            <p class="text-white/50 text-xs mt-4">2–3 day approval &middot; No setup fees &middot; Dedicated account manager</p>
+            <button wire:click="start" class="bg-accent hover:bg-accent-600 text-white px-7 py-3.5 rounded-xl font-semibold transition-all hover:scale-105 shadow-lg">Get Started, It's Free &rarr;</button>
+            <p class="text-white/50 text-xs mt-4">2-3 day approval &middot; No setup fees &middot; Dedicated account manager</p>
         </div>
 
         <div class="max-w-5xl mx-auto px-4 pb-16 grid grid-cols-2 md:grid-cols-4 gap-4">

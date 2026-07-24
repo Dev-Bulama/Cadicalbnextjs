@@ -103,10 +103,10 @@
                                     <label class="{{ $labelClass }}">Issue Severity</label>
                                     <select wire:model="severity" class="{{ $inputClass }}">
                                         <option value="">Select severity…</option>
-                                        <option value="low">Low — Equipment works partially</option>
-                                        <option value="medium">Medium — Reduced performance</option>
-                                        <option value="high">High — Equipment not functional</option>
-                                        <option value="critical">Critical — Patient safety risk</option>
+                                        <option value="low">Low: Equipment works partially</option>
+                                        <option value="medium">Medium: Reduced performance</option>
+                                        <option value="high">High: Equipment not functional</option>
+                                        <option value="critical">Critical: Patient safety risk</option>
                                     </select>
                                 </div>
                                 <div>

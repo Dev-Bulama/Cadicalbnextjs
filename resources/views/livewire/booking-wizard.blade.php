@@ -67,7 +67,7 @@
                                 <label class="block text-xs font-semibold text-slate-700 mb-1.5">Nature of Issue *</label>
                                 <select wire:model="issueType" class="{{ $inputClass }}">
                                     <option value="">What needs to be done?</option>
-                                    @foreach (['Routine Servicing / Preventive Maintenance', 'Equipment Not Functioning', 'Calibration Required', 'Parts Replacement', 'Post-Repair Inspection', 'Unsure — needs assessment'] as $opt)
+                                    @foreach (['Routine Servicing / Preventive Maintenance', 'Equipment Not Functioning', 'Calibration Required', 'Parts Replacement', 'Post-Repair Inspection', 'Unsure, needs assessment'] as $opt)
                                         <option>{{ $opt }}</option>
                                     @endforeach
                                 </select>
@@ -199,7 +199,7 @@
                                     <label class="block text-xs font-semibold text-slate-700 mb-1.5">Preferred Call Window *</label>
                                     <select wire:model="callWindow" class="{{ $inputClass }}">
                                         <option value="">Select a time window</option>
-                                        @foreach (['Morning — 8am to 12pm', 'Afternoon — 12pm to 4pm', 'Evening — 4pm to 6pm', 'Anytime during business hours'] as $opt)
+                                        @foreach (['Morning: 8am to 12pm', 'Afternoon: 12pm to 4pm', 'Evening: 4pm to 6pm', 'Anytime during business hours'] as $opt)
                                             <option>{{ $opt }}</option>
                                         @endforeach
                                     </select>
@@ -252,10 +252,10 @@
                 <div class="bg-cadical-500 px-5 py-4 text-white text-sm font-bold">What to Expect</div>
                 <div class="p-5">
                     @foreach ([
-                        ['⏱️', '24hr Confirmation', 'We confirm every booking within 24 hours — sooner for urgent requests'],
+                        ['⏱️', '24hr Confirmation', 'We confirm every booking within 24 hours, sooner for urgent requests'],
                         ['📍', 'We Come to You', 'Physical services are delivered at your facility or location across Nigeria'],
                         ['💻', 'Virtual Available', 'Consultations can be done via WhatsApp video or any preferred platform'],
-                        ['🎁', 'Free First Consultation', 'Your first supply consultation is completely free — no strings attached'],
+                        ['🎁', 'Free First Consultation', 'Your first supply consultation is completely free, no strings attached'],
                         ['📋', 'Maintenance Contracts', 'Ask about quarterly contracts for ongoing equipment servicing'],
                     ] as $i => [$icon, $title, $desc])
                         <div class="flex gap-3 py-2.5 items-start {{ $i < 4 ? 'border-b border-slate-100' : '' }}">
@@ -284,7 +284,7 @@
 
             <div class="flex gap-2.5 items-start bg-amber-50 border border-amber-200 rounded-lg px-4 py-3.5">
                 <span class="text-lg flex-shrink-0">🚨</span>
-                <p class="text-xs text-amber-800 leading-relaxed"><strong>Equipment emergency?</strong> Don't use this form — call us directly on <strong>+234 707 617 5550</strong> for same-day response.</p>
+                <p class="text-xs text-amber-800 leading-relaxed"><strong>Equipment emergency?</strong> Don't use this form. Call us directly on <strong>+234 707 617 5550</strong> for same-day response.</p>
             </div>
         </div>
     </div>
