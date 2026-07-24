@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ?? 'Cadical Solutions' }}</title>
-    <meta name="description" content="Cadical Solutions — medical equipment procurement, supplier marketplace, and field-service platform for the Nigerian healthcare market.">
+    <meta name="description" content="Cadical Solutions: medical equipment procurement, supplier marketplace, and field-service platform for the Nigerian healthcare market.">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#1565C0">
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">

@@ -13,10 +13,10 @@ class HomeSectionSeeder extends Seeder
             'hero' => [
                 'items' => [
                     [
-                        'badge' => 'Medical Equipment Marketplace',
+                        'badge' => 'Nationwide Delivery Across Nigeria',
                         'headline' => 'Premium Medical Equipment for Hospitals, Clinics & Healthcare Providers',
                         'headline_accent' => '',
-                        'sub' => 'Source verified, certified medical devices from trusted suppliers across Nigeria.',
+                        'sub' => 'Source verified, certified medical devices from trusted suppliers, delivered nationwide across Nigeria.',
                         'cta1_label' => 'Shop Equipment', 'cta1_href' => '/products',
                         'cta2_label' => 'Request Quote', 'cta2_href' => '/booking',
                         'image' => 'mri.jpeg',
@@ -110,7 +110,7 @@ class HomeSectionSeeder extends Seeder
             ],
 
             'portals' => [
-                'meta' => ['eyebrow' => 'What We Offer', 'heading' => 'One platform. Three ways to access us.', 'sub' => "Whether you're a hospital, clinic, or individual — we have the right solution for your healthcare supply needs."],
+                'meta' => ['eyebrow' => 'What We Offer', 'heading' => 'One platform. Three ways to access us.', 'sub' => "Whether you're a hospital, clinic, or individual, we have the right solution for your healthcare supply needs."],
                 'items' => [
                     ['icon' => 'shopping-bag', 'badge' => 'For Everyone', 'title' => 'MediStore', 'sub' => 'Browse and order certified medical equipment online. Fast delivery anywhere in Nigeria.', 'color' => 'border-blue-200 bg-blue-50/50', 'iconColor' => 'bg-blue-100 text-blue-700', 'features' => ['NAFDAC-certified products', 'Secure card & transfer payment', 'Fast nationwide delivery', 'Order tracking & history'], 'cta_label' => 'Browse Products', 'cta_href' => '/products', 'accent' => '#1565C0', 'popular' => false],
                     ['icon' => 'building-2', 'badge' => 'For Institutions', 'title' => 'Supply Portal', 'sub' => 'Dedicated procurement platform for hospitals, clinics, and healthcare institutions.', 'color' => 'border-emerald-200 bg-emerald-50/50 ring-2 ring-emerald-200', 'iconColor' => 'bg-emerald-100 text-emerald-700', 'features' => ['Institutional bulk pricing', 'Auto-invoicing & delivery notes', 'Monthly supply agreements', 'Dedicated account manager'], 'cta_label' => 'Open Portal', 'cta_href' => '/institutional-portal', 'accent' => '#059669', 'popular' => true],
@@ -125,18 +125,18 @@ class HomeSectionSeeder extends Seeder
 
             'why' => [
                 'meta' => [
-                    'eyebrow' => 'Why Cadical', 'heading' => "Reliable supply is not a luxury.",
+                    'eyebrow' => 'Why Cadical', 'heading' => "Reliable supply is luxury.",
                     'heading_accent' => "It's the baseline.",
-                    'paragraph' => 'Most healthcare supply chains in Nigeria fail at the last mile — late deliveries, wrong products, no follow-up. We built Cadical to be the partner healthcare providers actually deserve.',
+                    'paragraph' => 'Most healthcare supply chains in Nigeria fail at the last mile: late deliveries, wrong products, no follow-up. We built Cadical to be the partner healthcare providers actually deserve.',
                     'image' => 'test.jpeg',
                     'badge_title' => 'Trusted by 50+ healthcare facilities',
                     'badge_sub' => 'Hospitals, clinics and labs across Nigeria',
                 ],
                 'items' => [
                     ['icon' => 'shield-check', 'title' => 'Certified Products Only', 'desc' => 'Every product we carry is NAFDAC-registered and manufacturer-verified. No counterfeits, no shortcuts.', 'color' => 'text-blue-600 bg-blue-50'],
-                    ['icon' => 'zap', 'title' => 'Fast, Dependable Delivery', 'desc' => "Lagos same-day, nationwide within 48–72 hours. Your operations don't stop — we make sure of it.", 'color' => 'text-amber-600 bg-amber-50'],
+                    ['icon' => 'zap', 'title' => 'Fast, Dependable Delivery', 'desc' => "Abuja same-day, nationwide within 48-72 hours. Your operations don't stop. We make sure of it.", 'color' => 'text-amber-600 bg-amber-50'],
                     ['icon' => 'users', 'title' => 'Relationship-Driven', 'desc' => 'A dedicated account manager, not a ticket system. We pick up the phone and we follow through.', 'color' => 'text-emerald-600 bg-emerald-50'],
-                    ['icon' => 'award', 'title' => 'Healthcare Specialists', 'desc' => 'Our team has deep domain knowledge — biomedical engineers, procurement experts, and logistics specialists.', 'color' => 'text-violet-600 bg-violet-50'],
+                    ['icon' => 'award', 'title' => 'Healthcare Specialists', 'desc' => 'Our team has deep domain knowledge: biomedical engineers, procurement experts, and logistics specialists.', 'color' => 'text-violet-600 bg-violet-50'],
                 ],
             ],
 
@@ -151,12 +151,13 @@ class HomeSectionSeeder extends Seeder
             ],
 
             'services' => [
-                'meta' => ['eyebrow' => 'Medical Services', 'heading' => "We don't just supply — we support.", 'sub' => 'From emergency repair to scheduled maintenance, our certified engineers keep your equipment operational.', 'cta_label' => 'Book Any Service'],
+                'meta' => ['eyebrow' => 'Medical Services', 'heading' => "We don't just supply. We support.", 'sub' => 'From emergency repair to scheduled maintenance, our certified engineers keep your equipment operational.', 'cta_label' => 'Book Any Service'],
                 'items' => [
-                    ['icon' => 'wrench', 'title' => 'Equipment Repair', 'desc' => 'Fast on-site diagnosis and repair for all major brands — Philips, GE, Siemens, Mindray and more.', 'tags' => ['Imaging', 'ICU', 'Diagnostics'], 'color' => 'text-blue-600 bg-blue-50', 'cta' => 'Book Repair'],
+                    ['icon' => 'wrench', 'title' => 'Equipment Repair', 'desc' => 'Fast on-site diagnosis and repair for all major brands: Philips, GE, Siemens, Mindray and more.', 'tags' => ['Imaging', 'ICU', 'Diagnostics'], 'color' => 'text-blue-600 bg-blue-50', 'cta' => 'Book Repair'],
                     ['icon' => 'settings', 'title' => 'Preventive Maintenance', 'desc' => 'Scheduled quarterly or annual maintenance contracts to keep your equipment running at peak performance.', 'tags' => ['Annual Plans', 'Quarterly', 'Reports'], 'color' => 'text-emerald-600 bg-emerald-50', 'cta' => 'Get a Plan'],
                     ['icon' => 'gauge', 'title' => 'Calibration', 'desc' => 'Certified calibration services for diagnostic and measurement equipment to regulatory standards.', 'tags' => ['ISO 9001', 'Certificates', 'Auditable'], 'color' => 'text-violet-600 bg-violet-50', 'cta' => 'Book Calibration'],
                     ['icon' => 'phone', 'title' => 'Supply Consultation', 'desc' => 'Expert procurement advice for hospitals, clinics and institutions on sourcing, budgeting, and contracts.', 'tags' => ['Free Consult', 'Procurement', 'Budget'], 'color' => 'text-amber-600 bg-amber-50', 'cta' => 'Talk to Us'],
+                    ['icon' => 'clipboard-check', 'title' => 'Turnkey Contract', 'desc' => 'End-to-end equipment supply, installation, and commissioning managed under a single contract.', 'tags' => ['Full Installation', 'Commissioning', 'Single Contract'], 'color' => 'text-rose-600 bg-rose-50', 'cta' => 'Request Contract'],
                 ],
             ],
 
@@ -177,7 +178,7 @@ class HomeSectionSeeder extends Seeder
             ],
 
             'process' => [
-                'meta' => ['eyebrow' => 'How It Works', 'heading' => 'Simple from start to finish.', 'sub' => "Whether you're ordering supplies or booking a service — the process is seamless."],
+                'meta' => ['eyebrow' => 'How It Works', 'heading' => 'Simple from start to finish.', 'sub' => "Whether you're ordering supplies or booking a service, the process is seamless."],
                 'items' => [
                     ['n' => '01', 'title' => 'Browse or Request', 'desc' => 'Explore the MediStore, use the institutional portal, or submit a custom equipment request.'],
                     ['n' => '02', 'title' => 'Verify & Confirm', 'desc' => 'Our compliance team confirms product availability, certification, and pricing for your order.'],
@@ -189,7 +190,7 @@ class HomeSectionSeeder extends Seeder
             'testimonials' => [
                 'meta' => ['eyebrow' => 'Testimonials', 'heading' => 'What healthcare professionals say'],
                 'items' => [
-                    ['name' => 'Dr. Amaka Okafor', 'role' => 'Medical Director', 'org' => "St. Raphael's Specialist Hospital, Lagos", 'text' => "Cadical has transformed how we procure medical equipment. The institutional portal is seamless — we raised a purchase order and had our ultrasound machines delivered in 48 hours. Exceptional service.", 'rating' => 5],
+                    ['name' => 'Dr. Amaka Okafor', 'role' => 'Medical Director', 'org' => "St. Raphael's Specialist Hospital, Lagos", 'text' => "Cadical has transformed how we procure medical equipment. The institutional portal is seamless. We raised a purchase order and had our ultrasound machines delivered in 48 hours. Exceptional service.", 'rating' => 5],
                     ['name' => 'Engr. Taiwo Balogun', 'role' => 'Biomedical Engineer', 'org' => 'University College Hospital, Ibadan', 'text' => 'Their maintenance engineers are genuinely knowledgeable. We had a Philips monitor down at 2am and their team was on-site by morning. That kind of reliability is rare in Nigeria.', 'rating' => 5],
                     ['name' => 'Mrs. Ngozi Eze', 'role' => 'Head of Procurement', 'org' => 'Redeemed Healthcare Centre, Abuja', 'text' => "We've used three other suppliers before Cadical. None of them offered the level of after-sales support and product certification documentation that Cadical provides as standard.", 'rating' => 5],
                     ['name' => 'Dr. Emmanuel Adeyemi', 'role' => 'Lab Director', 'org' => 'Synlab Nigeria, Lagos', 'text' => 'The diagnostic equipment we sourced through Cadical has been performing flawlessly for over a year. The calibration certificates and service reports were impeccable.', 'rating' => 5],
@@ -210,7 +211,7 @@ class HomeSectionSeeder extends Seeder
             'compliance' => [
                 'meta' => ['eyebrow' => 'Compliance', 'heading' => 'Regulated. Registered.', 'heading_accent' => 'Auditable.', 'sub' => 'Every product and process at Cadical is backed by regulatory compliance.'],
                 'items' => [
-                    ['tag' => 'CAC', 'title' => 'Corporate Affairs Commission', 'detail' => 'RC 8969474 — legally registered entity'],
+                    ['tag' => 'CAC', 'title' => 'Corporate Affairs Commission', 'detail' => 'RC 8969474, legally registered entity'],
                     ['tag' => 'NAFDAC', 'title' => 'Drug & Device Compliance', 'detail' => 'Per-SKU product registration'],
                     ['tag' => 'NDPA', 'title' => 'Data Protection', 'detail' => 'privacy@cadical.com'],
                     ['tag' => 'ISO', 'title' => 'Quality Standards', 'detail' => 'ISO 13485 aligned processes'],
@@ -220,12 +221,12 @@ class HomeSectionSeeder extends Seeder
             'coverage' => [
                 'meta' => ['eyebrow' => 'Nationwide Coverage', 'heading' => 'Where we', 'heading_accent' => 'deliver.', 'paragraph' => "Fast, reliable delivery of medical equipment and supplies across Nigeria's major cities and beyond.", 'image' => 'deliveries.png'],
                 'items' => [
-                    ['city' => 'Lagos', 'time' => 'Same-day'],
-                    ['city' => 'Abuja', 'time' => '24–48hrs'],
-                    ['city' => 'Port Harcourt', 'time' => '24–48hrs'],
-                    ['city' => 'Kano', 'time' => '48–72hrs'],
-                    ['city' => 'Ibadan', 'time' => '24–48hrs'],
-                    ['city' => 'Enugu', 'time' => '48–72hrs'],
+                    ['city' => 'Abuja', 'time' => 'Same-day'],
+                    ['city' => 'Lagos', 'time' => '24-48hrs'],
+                    ['city' => 'Port Harcourt', 'time' => '24-48hrs'],
+                    ['city' => 'Kano', 'time' => '48-72hrs'],
+                    ['city' => 'Ibadan', 'time' => '24-48hrs'],
+                    ['city' => 'Enugu', 'time' => '48-72hrs'],
                 ],
             ],
         ];
