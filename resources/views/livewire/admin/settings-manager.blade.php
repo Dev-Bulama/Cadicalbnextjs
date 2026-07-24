@@ -59,6 +59,8 @@
                             </label>
                         @elseif ($field['type'] === 'code')
                             <textarea wire:model="values.{{ $loop->index }}" rows="4" placeholder="{{ $field['placeholder'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono mt-1"></textarea>
+                        @elseif ($field['type'] === 'number')
+                            <input type="number" wire:model="values.{{ $loop->index }}" min="0" step="1000" placeholder="{{ $field['placeholder'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mt-1">
                         @else
                             <input type="text" wire:model="values.{{ $loop->index }}" placeholder="{{ $field['placeholder'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mt-1">
                         @endif
