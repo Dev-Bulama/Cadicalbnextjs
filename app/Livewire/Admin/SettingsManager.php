@@ -48,6 +48,12 @@ class SettingsManager extends Component
                 'mail.from.name' => ['label' => 'From Name', 'type' => 'text', 'env' => 'MAIL_FROM_NAME'],
             ],
         ],
+        'integrations' => [
+            'label' => 'Integrations',
+            'fields' => [
+                'site.chatbot_script' => ['label' => 'Chatbot / Live Chat Widget', 'type' => 'code', 'placeholder' => '<script src="..." data-chatbot-id="..."></script>', 'hint' => 'Paste the full <script> tag from your chat provider. It\'s added to every public page just before </body>.'],
+            ],
+        ],
     ];
 
     public string $activeGroup = 'branding';

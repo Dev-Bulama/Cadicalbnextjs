@@ -25,7 +25,7 @@
         <div class="bg-white rounded-2xl border border-slate-100 p-5">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 @foreach ($schema['fields'] as $configKey => $field)
-                    <div wire:key="field-{{ $activeGroup }}-{{ $loop->index }}" class="{{ $field['type'] === 'image' ? 'sm:col-span-2' : '' }}">
+                    <div wire:key="field-{{ $activeGroup }}-{{ $loop->index }}" class="{{ in_array($field['type'], ['image', 'code']) ? 'sm:col-span-2' : '' }}">
                         <label class="text-xs font-medium text-slate-500">{{ $field['label'] }}</label>
 
                         @if ($field['type'] === 'select')
@@ -57,6 +57,8 @@
                                 <input type="checkbox" wire:model="values.{{ $loop->index }}" class="rounded border-slate-300">
                                 <span class="text-sm text-slate-700">{{ $field['checkboxLabel'] ?? 'Enabled' }}</span>
                             </label>
+                        @elseif ($field['type'] === 'code')
+                            <textarea wire:model="values.{{ $loop->index }}" rows="4" placeholder="{{ $field['placeholder'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono mt-1"></textarea>
                         @else
                             <input type="text" wire:model="values.{{ $loop->index }}" placeholder="{{ $field['placeholder'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mt-1">
                         @endif
