@@ -22,7 +22,7 @@ class HomeContentManager extends Component
             'label' => 'Hero Slider', 'itemLabel' => 'Slide',
             'metaFields' => [],
             'itemFields' => [
-                'badge' => 'text', 'headline' => 'textarea', 'sub' => 'textarea',
+                'badge' => 'text', 'headline' => 'textarea', 'headline_accent' => 'text', 'sub' => 'textarea',
                 'cta1_label' => 'text', 'cta1_href' => 'text',
                 'cta2_label' => 'text', 'cta2_href' => 'text',
                 'image' => 'image', 'gradient' => 'text',
