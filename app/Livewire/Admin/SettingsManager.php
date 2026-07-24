@@ -54,6 +54,12 @@ class SettingsManager extends Component
                 'site.chatbot_script' => ['label' => 'Chatbot / Live Chat Widget', 'type' => 'code', 'placeholder' => '<script src="..." data-chatbot-id="..."></script>', 'hint' => 'Paste the full <script> tag from your chat provider. It\'s added to every public page just before </body>.'],
             ],
         ],
+        'shop' => [
+            'label' => 'Shop / Catalog',
+            'fields' => [
+                'shop.max_price' => ['label' => 'Max Price Filter (₦)', 'type' => 'number', 'placeholder' => '20000000', 'hint' => 'Upper bound of the price-range slider on the All Products page. Leave blank to use the default (₦20,000,000).'],
+            ],
+        ],
     ];
 
     public string $activeGroup = 'branding';

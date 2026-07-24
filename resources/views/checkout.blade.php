@@ -2,7 +2,7 @@
 
 @section('head')
     <script src="https://checkout.flutterwave.com/v3.js"></script>
-    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <script src="https://js.paystack.co/v2/inline.js"></script>
 @endsection
 
 @section('content')
@@ -244,8 +244,21 @@
 
             async pay() {
                 if (this.isProcessing) return;
-                this.isProcessing = true;
+
                 const amount = this.$store.cart.subtotal;
+                const email = (this.form.email || cfg.userEmail || '').trim();
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                if (!amount || !Number.isFinite(amount) || amount <= 0) {
+                    this.$dispatch('cart-toast', { message: 'Your cart total is invalid. Please refresh and try again.' });
+                    return;
+                }
+                if (!emailPattern.test(email)) {
+                    this.$dispatch('cart-toast', { message: 'A valid email address is required to proceed with payment.' });
+                    return;
+                }
+
+                this.isProcessing = true;
                 const txRef = 'CAD-' + Date.now();
 
                 try {
@@ -262,7 +275,7 @@
                             amount: amount,
                             currency: 'NGN',
                             payment_options: 'card, banktransfer, ussd',
-                            customer: { email: this.form.email, phone_number: this.form.phone, name: `${this.form.firstName} ${this.form.lastName}` },
+                            customer: { email: email, phone_number: this.form.phone, name: `${this.form.firstName} ${this.form.lastName}` },
                             customizations: { title: 'Cadical Store', description: 'Payment for medical products', logo: '{{ \App\Models\HomeSection::mediaUrl(config('site.logo')) ?: asset('images/logo.png') }}' },
                             callback: (response) => this.handleGatewayResponse('flutterwave', response.transaction_id),
                             onclose: () => { this.isProcessing = false; this.$dispatch('cart-toast', { message: 'Payment cancelled' }) },
@@ -274,16 +287,17 @@
                         if (!cfg.publicKeyPaystack) {
                             throw new Error('Paystack is not configured yet. Try Flutterwave, or contact support.');
                         }
-                        const handler = PaystackPop.setup({
+                        const popup = new PaystackPop();
+                        popup.newTransaction({
                             key: cfg.publicKeyPaystack,
-                            email: this.form.email || cfg.userEmail,
+                            email: email,
                             amount: Math.round(amount * 100),
                             currency: 'NGN',
                             ref: txRef,
-                            callback: (response) => this.handleGatewayResponse('paystack', response.reference),
-                            onClose: () => { this.isProcessing = false; this.$dispatch('cart-toast', { message: 'Payment cancelled' }) },
+                            onSuccess: (transaction) => this.handleGatewayResponse('paystack', transaction.reference),
+                            onCancel: () => { this.isProcessing = false; this.$dispatch('cart-toast', { message: 'Payment cancelled' }) },
+                            onError: (error) => { this.isProcessing = false; this.$dispatch('cart-toast', { message: error?.message || 'Paystack payment failed to start. Please try again.' }) },
                         });
-                        handler.openIframe();
                     }
                 } catch (e) {
                     this.isProcessing = false;

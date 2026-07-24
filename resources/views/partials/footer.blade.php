@@ -41,7 +41,9 @@
         <div class="grid grid-cols-2 md:grid-cols-5 gap-8 pb-12 border-b border-slate-800">
             <div class="col-span-2 md:col-span-1">
                 <a href="{{ url('/') }}" class="flex items-center gap-2.5 mb-4">
-                    <img src="{{ $siteLogo }}" alt="Cadical" style="height: {{ $logoHeight }}px" class="w-auto {{ $isCustomLogo ? 'object-contain' : 'rounded-lg object-contain' }}">
+                    <span class="inline-flex items-center justify-center bg-white rounded-lg p-1.5">
+                        <img src="{{ $siteLogo }}" alt="Cadical" style="height: {{ $logoHeight }}px" class="w-auto {{ $isCustomLogo ? 'object-contain' : 'rounded object-contain' }}">
+                    </span>
                     @if ($showSiteName)
                         <div>
                             <div class="text-white text-sm font-bold">Cadical Solutions</div>

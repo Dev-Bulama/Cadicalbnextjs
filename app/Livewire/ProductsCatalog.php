@@ -8,7 +8,7 @@ use Livewire\Component;
 
 class ProductsCatalog extends Component
 {
-    private const MAX_PRICE = 5000000;
+    private const DEFAULT_MAX_PRICE = 20_000_000;
 
     #[Url(as: 'search', history: true)]
     public string $search = '';
@@ -16,23 +16,26 @@ class ProductsCatalog extends Component
     #[Url(as: 'category', history: true)]
     public ?string $category = null;
 
-    public int $maxPrice = self::MAX_PRICE;
+    public int $maxPrice;
 
-    public function getMaxPriceLimitProperty(): int
+    public int $maxPriceLimit;
+
+    public function mount(): void
     {
-        return self::MAX_PRICE;
+        $this->maxPriceLimit = (int) (config('shop.max_price') ?: self::DEFAULT_MAX_PRICE);
+        $this->maxPrice = $this->maxPriceLimit;
     }
 
     public function clearFilters(): void
     {
         $this->search = '';
         $this->category = null;
-        $this->maxPrice = self::MAX_PRICE;
+        $this->maxPrice = $this->maxPriceLimit;
     }
 
     public function getHasActiveFiltersProperty(): bool
     {
-        return $this->search !== '' || $this->category !== null || $this->maxPrice < self::MAX_PRICE;
+        return $this->search !== '' || $this->category !== null || $this->maxPrice < $this->maxPriceLimit;
     }
 
     public function getProductsProperty()
@@ -40,7 +43,7 @@ class ProductsCatalog extends Component
         return Product::query()
             ->when($this->search !== '', fn ($q) => $q->where('name', 'like', '%'.$this->search.'%'))
             ->when($this->category, fn ($q) => $q->where('category', $this->category))
-            ->when($this->maxPrice < self::MAX_PRICE, fn ($q) => $q->where('price', '<=', $this->maxPrice))
+            ->when($this->maxPrice < $this->maxPriceLimit, fn ($q) => $q->where('price', '<=', $this->maxPrice))
             ->orderBy('name')
             ->get();
     }
