@@ -32,17 +32,22 @@
         ['src' => 'images/facebook.png', 'href' => 'https://www.facebook.com/share/1CMA1c1Czi/', 'alt' => 'Facebook'],
     ];
     $siteLogo = \App\Models\HomeSection::mediaUrl(config('site.logo')) ?: asset('images/logo.png');
+    $isCustomLogo = filled(config('site.logo'));
+    $logoHeight = config('site.logo_height') ?: '32';
+    $showSiteName = config('site.show_name') !== '0';
 @endphp
 <footer class="bg-slate-900 text-slate-400">
     <div class="max-w-7xl mx-auto px-4 md:px-8 pt-16 pb-8">
         <div class="grid grid-cols-2 md:grid-cols-5 gap-8 pb-12 border-b border-slate-800">
             <div class="col-span-2 md:col-span-1">
                 <a href="{{ url('/') }}" class="flex items-center gap-2.5 mb-4">
-                    <img src="{{ $siteLogo }}" alt="Cadical" class="w-8 h-8 rounded-lg object-contain">
-                    <div>
-                        <div class="text-white text-sm font-bold">Cadical Solutions</div>
-                        <div class="text-[10px] text-slate-500">Right Supply. Right Time.</div>
-                    </div>
+                    <img src="{{ $siteLogo }}" alt="Cadical" style="height: {{ $logoHeight }}px" class="w-auto {{ $isCustomLogo ? 'object-contain' : 'rounded-lg object-contain' }}">
+                    @if ($showSiteName)
+                        <div>
+                            <div class="text-white text-sm font-bold">Cadical Solutions</div>
+                            <div class="text-[10px] text-slate-500">Right Supply. Right Time.</div>
+                        </div>
+                    @endif
                 </a>
                 <p class="text-sm leading-relaxed mb-5">Nigeria's trusted medical equipment supply and service platform.</p>
                 <div class="flex gap-3">

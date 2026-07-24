@@ -1,4 +1,9 @@
-@php $siteLogo = \App\Models\HomeSection::mediaUrl(config('site.logo')) ?: asset('images/logo.png'); @endphp
+@php
+    $siteLogo = \App\Models\HomeSection::mediaUrl(config('site.logo')) ?: asset('images/logo.png');
+    $isCustomLogo = filled(config('site.logo'));
+    $logoHeight = config('site.logo_height') ?: '32';
+    $showSiteName = config('site.show_name') !== '0';
+@endphp
 <nav
     x-data="{
         open: false, scrolled: false, prodOpen: false, servOpen: false, acctOpen: false,
@@ -13,11 +18,13 @@
 >
     {{-- Logo --}}
     <a href="{{ url('/') }}" class="flex items-center gap-2.5 flex-shrink-0">
-        <img src="{{ $siteLogo }}" alt="Cadical" class="w-8 h-8 rounded-lg object-contain">
-        <div class="leading-tight hidden sm:block">
-            <div class="text-cadical-500 text-sm font-bold tracking-tight">Cadical Solutions</div>
-            <div class="text-[10px] text-slate-400 font-medium">Right Supply. Right Time.</div>
-        </div>
+        <img src="{{ $siteLogo }}" alt="Cadical" style="height: {{ $logoHeight }}px" class="w-auto {{ $isCustomLogo ? 'object-contain' : 'rounded-lg object-contain' }}">
+        @if ($showSiteName)
+            <div class="leading-tight hidden sm:block">
+                <div class="text-cadical-500 text-sm font-bold tracking-tight">Cadical Solutions</div>
+                <div class="text-[10px] text-slate-400 font-medium">Right Supply. Right Time.</div>
+            </div>
+        @endif
     </a>
 
     {{-- Desktop Nav --}}

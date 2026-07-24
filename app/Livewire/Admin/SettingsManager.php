@@ -21,6 +21,8 @@ class SettingsManager extends Component
             'label' => 'Branding',
             'fields' => [
                 'site.logo' => ['label' => 'Site Logo', 'type' => 'image', 'hint' => 'Shown in the navbar and footer. Leave blank to use the default logo.'],
+                'site.logo_height' => ['label' => 'Logo Size', 'type' => 'select', 'options' => ['32' => 'Small (32px, default)', '40' => 'Medium (40px)', '48' => 'Large (48px)', '56' => 'X-Large (56px)', '64' => 'XX-Large (64px)'], 'hint' => 'Height of the logo in the navbar and footer — width scales automatically.'],
+                'site.show_name' => ['label' => 'Site Name Text', 'type' => 'boolean', 'checkboxLabel' => 'Show "Cadical Solutions" text next to the logo', 'default' => true, 'hint' => 'Turn off if your uploaded logo already includes the company name.'],
             ],
         ],
         'payments' => [
@@ -93,12 +95,17 @@ class SettingsManager extends Component
 
         $i = 0;
         foreach ($fields as $configKey => $meta) {
+            $type = $meta['type'] ?? 'text';
             $stored = Setting::get($configKey);
             $current = $stored ?? config($configKey);
 
-            if (($meta['type'] ?? 'text') === 'password') {
+            if ($type === 'password') {
                 $this->values[$i] = '';
                 $this->configured[$i] = filled($current);
+            } elseif ($type === 'boolean') {
+                $this->values[$i] = $current === null
+                    ? (bool) ($meta['default'] ?? false)
+                    : in_array($current, [true, 1, '1'], true);
             } else {
                 $this->values[$i] = (string) ($current ?? '');
             }
@@ -119,7 +126,11 @@ class SettingsManager extends Component
                 continue;
             }
 
-            $stored = $value === '' ? null : $value;
+            $stored = match (true) {
+                $type === 'boolean' => $value ? '1' : '0',
+                $value === '' => null,
+                default => $value,
+            };
             Setting::set($configKey, $stored);
             config([$configKey => $stored]);
         }
