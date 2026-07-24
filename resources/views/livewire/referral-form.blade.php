@@ -1,6 +1,7 @@
 @php
     $inputClass = 'w-full px-4 py-2.5 sm:py-3 border-2 border-gray-200 rounded-lg focus:border-[#1B3A5C] focus:outline-none transition-all bg-blue-50';
     $steps = ['Referrer' => '🏥', 'Client' => '👤', 'Supply' => '🧪', 'Confirm' => '🔗'];
+    $rm = \App\Models\HomeSection::content('referral_form', ['meta' => []])['meta'];
 @endphp
 <div class="min-h-screen bg-gradient-to-b from-blue-500 via-blue-600 to-cadical-500 py-10 px-4 sm:px-6 lg:px-8">
     <div class="max-w-4xl mx-auto">
@@ -12,14 +13,14 @@
                         <img src="{{ \App\Models\HomeSection::mediaUrl(config('site.logo')) ?: asset('images/logo.png') }}" alt="Cadical" class="w-8 h-8 object-contain">
                     </div>
                     <div>
-                        <h1 class="text-2xl sm:text-3xl font-semibold text-white">Cadical Solutions Ltd</h1>
-                        <p class="text-xs sm:text-sm text-blue-200 opacity-75 tracking-wide mt-1">cadicalsolutions.com &bull; Healthcare Supplies</p>
+                        <h1 class="text-2xl sm:text-3xl font-semibold text-white">{{ $rm['form_title'] ?? 'Cadical Solutions Ltd' }}</h1>
+                        <p class="text-xs sm:text-sm text-blue-200 opacity-75 tracking-wide mt-1">{{ $rm['form_sub'] ?? '' }}</p>
                     </div>
                 </div>
                 <div class="hidden sm:block text-right">
                     <div class="inline-block bg-yellow-500 text-[#1B3A5C] text-xs font-bold px-3 py-1 rounded-full mb-2 tracking-wider">Official Form</div>
-                    <h2 class="text-2xl font-semibold text-white">Referral Form</h2>
-                    <p class="text-xs sm:text-sm text-blue-200 opacity-75 mt-1">Nigeria's Healthcare Supply Partner</p>
+                    <h2 class="text-2xl font-semibold text-white">{{ $rm['banner_heading'] ?? 'Referral Form' }}</h2>
+                    <p class="text-xs sm:text-sm text-blue-200 opacity-75 mt-1">{{ $rm['banner_sub'] ?? '' }}</p>
                 </div>
             </div>
         </div>
@@ -46,8 +47,8 @@
             @if ($submitted)
                 <div class="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg p-8 sm:p-12 text-center">
                     <div class="text-5xl sm:text-6xl mb-4">✅</div>
-                    <h3 class="text-2xl sm:text-3xl font-semibold text-green-700 mb-2">Referral Submitted!</h3>
-                    <p class="text-green-600 mb-4">Your referral has been received by Cadical Solutions Ltd. A confirmation will be sent to your email or phone shortly.</p>
+                    <h3 class="text-2xl sm:text-3xl font-semibold text-green-700 mb-2">{{ $rm['confirmation_heading'] ?? 'Referral Submitted!' }}</h3>
+                    <p class="text-green-600 mb-4">{{ $rm['confirmation_message'] ?? '' }}</p>
                     <p class="font-bold text-green-700 mb-6">Order Reference ID: <span class="text-lg text-green-600">{{ $refId }}</span></p>
                     <button wire:click="resetForm" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-lg">Submit Another Request</button>
                 </div>
@@ -65,8 +66,8 @@
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">🏥</div>
                                 <div>
-                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">Section 1: Contact / Ordering Party</h3>
-                                    <p class="text-xs sm:text-sm text-gray-500 mt-1">Details of the healthcare professional, facility, or affiliate partner placing this supply request</p>
+                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">{{ $rm['section1_title'] ?? 'Section 1: Contact / Ordering Party' }}</h3>
+                                    <p class="text-xs sm:text-sm text-gray-500 mt-1">{{ $rm['section1_sub'] ?? '' }}</p>
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -110,8 +111,8 @@
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">👤</div>
                                 <div>
-                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">Section 2: Client / Facility Details</h3>
-                                    <p class="text-xs sm:text-sm text-gray-500 mt-1">Details of the client, facility, or institution requesting Cadical's supplies or services</p>
+                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">{{ $rm['section2_title'] ?? 'Section 2: Client / Facility Details' }}</h3>
+                                    <p class="text-xs sm:text-sm text-gray-500 mt-1">{{ $rm['section2_sub'] ?? '' }}</p>
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -147,8 +148,8 @@
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">🧪</div>
                                 <div>
-                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">Section 3: Supply & Product Request</h3>
-                                    <p class="text-xs sm:text-sm text-gray-500 mt-1">Specify the healthcare supplies, diagnostic products, or services required</p>
+                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">{{ $rm['section3_title'] ?? 'Section 3: Supply & Product Request' }}</h3>
+                                    <p class="text-xs sm:text-sm text-gray-500 mt-1">{{ $rm['section3_sub'] ?? '' }}</p>
                                 </div>
                             </div>
 
@@ -206,8 +207,8 @@
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">🔗</div>
                                 <div>
-                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">Section 4: Supply Referral & Affiliate Tracking</h3>
-                                    <p class="text-xs sm:text-sm text-gray-500 mt-1">For affiliate partners referring clients to Cadical: commission tracking and order attribution</p>
+                                    <h3 class="text-xl sm:text-2xl font-semibold text-[#1B3A5C]">{{ $rm['section4_title'] ?? 'Section 4: Supply Referral & Affiliate Tracking' }}</h3>
+                                    <p class="text-xs sm:text-sm text-gray-500 mt-1">{{ $rm['section4_sub'] ?? '' }}</p>
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

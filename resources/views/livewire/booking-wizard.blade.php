@@ -1,5 +1,8 @@
 @php
     $inputClass = 'w-full px-3.5 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 bg-white transition-all focus:outline-none focus:ring-2 focus:ring-cadical-500/20 focus:border-cadical-500';
+    $bw = \App\Models\HomeSection::content('booking_wizard', ['meta' => []])['meta'];
+    $expect = \App\Models\HomeSection::content('booking_wizard_expect', ['meta' => [], 'items' => []]);
+    $callBox = \App\Models\HomeSection::content('booking_wizard_contact', ['meta' => [], 'items' => []]);
 @endphp
 <section class="max-w-[1100px] mx-auto px-4 sm:px-6 md:px-12 py-8 md:py-10 pb-14">
     <div class="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-7 items-start">
@@ -9,9 +12,9 @@
                 {{-- Confirmation --}}
                 <div class="text-center px-8 py-12">
                     <div class="w-[72px] h-[72px] bg-emerald-50 rounded-full flex items-center justify-center text-3xl mx-auto mb-5">✅</div>
-                    <h2 class="font-bold text-2xl text-slate-900 mb-2.5">Booking Received.</h2>
+                    <h2 class="font-bold text-2xl text-slate-900 mb-2.5">{{ $bw['confirmation_heading'] ?? 'Booking Received.' }}</h2>
                     <p class="text-sm text-slate-500 leading-relaxed max-w-[380px] mx-auto mb-6">
-                        Thank you. Your booking request has been submitted. The Cadical team will confirm your appointment within 24 hours via phone or WhatsApp.
+                        {{ $bw['confirmation_message'] ?? '' }}
                     </p>
                     <div class="inline-block bg-blue-50 border border-slate-200 rounded-lg px-5 py-2.5 text-sm text-cadical-500 font-semibold mb-6">Ref: {{ $bookingRef }}</div>
                     <div class="flex gap-3 justify-center flex-wrap">
@@ -35,8 +38,8 @@
                 <div class="p-6 sm:p-8">
                     {{-- Step 1: Service --}}
                     @if ($step === 1)
-                        <p class="font-bold text-xl text-slate-900 mb-1.5">What do you need?</p>
-                        <p class="text-sm text-slate-500 mb-7">Select the service that fits your situation.</p>
+                        <p class="font-bold text-xl text-slate-900 mb-1.5">{{ $bw['step1_heading'] ?? 'What do you need?' }}</p>
+                        <p class="text-sm text-slate-500 mb-7">{{ $bw['step1_sub'] ?? '' }}</p>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                             <div wire:click="selectService('maintenance')" class="relative border rounded-lg p-4 cursor-pointer transition-colors {{ $service === 'maintenance' ? 'border-cadical-500 bg-blue-50' : 'border-slate-200 hover:border-cadical-500' }}">
@@ -121,8 +124,8 @@
 
                     {{-- Step 2: Details --}}
                     @if ($step === 2)
-                        <p class="font-bold text-xl text-slate-900 mb-1.5">Your Details</p>
-                        <p class="text-sm text-slate-500 mb-7">Tell us who you are so we can prepare properly.</p>
+                        <p class="font-bold text-xl text-slate-900 mb-1.5">{{ $bw['step2_heading'] ?? 'Your Details' }}</p>
+                        <p class="text-sm text-slate-500 mb-7">{{ $bw['step2_sub'] ?? '' }}</p>
 
                         <div class="mb-4">
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">You are booking as *</label>
@@ -161,8 +164,8 @@
 
                     {{-- Step 3: Date/Time --}}
                     @if ($step === 3)
-                        <p class="font-bold text-xl text-slate-900 mb-1.5">When works for you?</p>
-                        <p class="text-sm text-slate-500 mb-7">Pick a slot or request a callback and we'll confirm a time that suits both sides.</p>
+                        <p class="font-bold text-xl text-slate-900 mb-1.5">{{ $bw['step3_heading'] ?? 'When works for you?' }}</p>
+                        <p class="text-sm text-slate-500 mb-7">{{ $bw['step3_sub'] ?? '' }}</p>
 
                         <div class="mb-4">
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">How would you prefer to book?</label>
@@ -216,8 +219,8 @@
 
                     {{-- Step 4: Review --}}
                     @if ($step === 4)
-                        <p class="font-bold text-xl text-slate-900 mb-1.5">Review & Confirm</p>
-                        <p class="text-sm text-slate-500 mb-7">Check everything looks right before submitting.</p>
+                        <p class="font-bold text-xl text-slate-900 mb-1.5">{{ $bw['step4_heading'] ?? 'Review & Confirm' }}</p>
+                        <p class="text-sm text-slate-500 mb-7">{{ $bw['step4_sub'] ?? '' }}</p>
 
                         <div class="bg-slate-50 rounded-lg p-5 mb-6 border border-slate-200">
                             <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3.5">Booking Summary</h4>
@@ -249,34 +252,24 @@
         {{-- Sidebar --}}
         <div class="flex flex-col gap-5">
             <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                <div class="bg-cadical-500 px-5 py-4 text-white text-sm font-bold">What to Expect</div>
+                <div class="bg-cadical-500 px-5 py-4 text-white text-sm font-bold">{{ $expect['meta']['title'] ?? 'What to Expect' }}</div>
                 <div class="p-5">
-                    @foreach ([
-                        ['⏱️', '24hr Confirmation', 'We confirm every booking within 24 hours, sooner for urgent requests'],
-                        ['📍', 'We Come to You', 'Physical services are delivered at your facility or location across Nigeria'],
-                        ['💻', 'Virtual Available', 'Consultations can be done via WhatsApp video or any preferred platform'],
-                        ['🎁', 'Free First Consultation', 'Your first supply consultation is completely free, no strings attached'],
-                        ['📋', 'Maintenance Contracts', 'Ask about quarterly contracts for ongoing equipment servicing'],
-                    ] as $i => [$icon, $title, $desc])
-                        <div class="flex gap-3 py-2.5 items-start {{ $i < 4 ? 'border-b border-slate-100' : '' }}">
-                            <span class="text-lg flex-shrink-0 mt-0.5">{{ $icon }}</span>
-                            <div><h4 class="text-sm font-semibold text-slate-900 mb-0.5">{{ $title }}</h4><p class="text-xs text-slate-500">{{ $desc }}</p></div>
+                    @foreach ($expect['items'] ?? [] as $i => $item)
+                        <div class="flex gap-3 py-2.5 items-start {{ $i < count($expect['items']) - 1 ? 'border-b border-slate-100' : '' }}">
+                            <span class="text-lg flex-shrink-0 mt-0.5">{{ $item['icon'] ?? '' }}</span>
+                            <div><h4 class="text-sm font-semibold text-slate-900 mb-0.5">{{ $item['title'] ?? '' }}</h4><p class="text-xs text-slate-500">{{ $item['desc'] ?? '' }}</p></div>
                         </div>
                     @endforeach
                 </div>
             </div>
 
             <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                <div class="bg-cadical-500 px-5 py-4 text-white text-sm font-bold">Prefer to Call?</div>
+                <div class="bg-cadical-500 px-5 py-4 text-white text-sm font-bold">{{ $callBox['meta']['title'] ?? 'Prefer to Call?' }}</div>
                 <div class="p-5">
-                    @foreach ([
-                        ['📞', 'Call Us', '+234 707 617 5550', 'tel:+2347076175550'],
-                        ['💬', 'WhatsApp', 'Message us directly for fastest response', 'https://wa.me/2347076175550'],
-                        ['✉️', 'Email', 'services@cadical.com', 'mailto:services@cadical.com'],
-                    ] as $i => [$icon, $title, $desc, $href])
-                        <a href="{{ $href }}" class="flex items-center gap-3 py-2.5 {{ $i < 2 ? 'border-b border-slate-100' : '' }}">
-                            <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center text-base flex-shrink-0">{{ $icon }}</div>
-                            <div><h4 class="text-sm font-semibold text-slate-900 mb-0.5">{{ $title }}</h4><p class="text-xs text-slate-500">{{ $desc }}</p></div>
+                    @foreach ($callBox['items'] ?? [] as $i => $item)
+                        <a href="{{ $item['href'] ?? '#' }}" class="flex items-center gap-3 py-2.5 {{ $i < count($callBox['items']) - 1 ? 'border-b border-slate-100' : '' }}">
+                            <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center text-base flex-shrink-0">{{ $item['icon'] ?? '' }}</div>
+                            <div><h4 class="text-sm font-semibold text-slate-900 mb-0.5">{{ $item['title'] ?? '' }}</h4><p class="text-xs text-slate-500">{{ $item['desc'] ?? '' }}</p></div>
                         </a>
                     @endforeach
                 </div>
@@ -284,7 +277,7 @@
 
             <div class="flex gap-2.5 items-start bg-amber-50 border border-amber-200 rounded-lg px-4 py-3.5">
                 <span class="text-lg flex-shrink-0">🚨</span>
-                <p class="text-xs text-amber-800 leading-relaxed"><strong>Equipment emergency?</strong> Don't use this form. Call us directly on <strong>+234 707 617 5550</strong> for same-day response.</p>
+                <p class="text-xs text-amber-800 leading-relaxed">{{ $bw['emergency_notice'] ?? '' }}</p>
             </div>
         </div>
     </div>

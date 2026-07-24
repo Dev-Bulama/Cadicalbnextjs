@@ -1,6 +1,7 @@
 @php
     $inputClass = 'w-full px-3.5 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-cadical-500/20 focus:border-cadical-500';
     $labelClass = 'block text-sm font-medium text-slate-700 mb-1.5';
+    $sw = \App\Models\HomeSection::content('service_booking_wizard', ['meta' => []])['meta'];
 @endphp
 <div class="min-h-screen bg-slate-50">
     @if ($submitted)
@@ -9,18 +10,17 @@
                 <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i data-lucide="check-circle" class="w-8 h-8 text-emerald-600"></i>
                 </div>
-                <h2 class="text-xl font-bold text-slate-900 mb-2">Booking Confirmed</h2>
-                <p class="text-slate-500 text-sm mb-4">Your service request has been received. Our team will review and assign a technician shortly.</p>
+                <h2 class="text-xl font-bold text-slate-900 mb-2">{{ $sw['confirmation_heading'] ?? 'Booking Confirmed' }}</h2>
+                <p class="text-slate-500 text-sm mb-4">{{ $sw['confirmation_message'] ?? '' }}</p>
                 <div class="p-3 bg-slate-50 rounded-lg mb-4">
                     <p class="text-xs text-slate-400">Booking Reference</p>
                     <p class="font-mono font-bold text-lg text-slate-900">{{ $bookingCode }}</p>
                 </div>
                 <div class="text-xs text-slate-500 text-left space-y-1 mb-6 p-3 bg-blue-50 rounded-lg">
                     <p class="font-medium text-cadical-700 mb-1">What happens next?</p>
-                    <p>✓ Booking review within 2 hours</p>
-                    <p>✓ Technician assignment notification</p>
-                    <p>✓ Real-time status updates via SMS/app</p>
-                    <p>✓ Technician arrives at scheduled time</p>
+                    @foreach ($sw['next_steps'] ?? [] as $step)
+                        <p>✓ {{ $step }}</p>
+                    @endforeach
                 </div>
                 <a href="{{ url('/') }}" class="inline-block bg-cadical-500 hover:bg-cadical-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors">Return to Home</a>
             </div>
@@ -30,8 +30,8 @@
             <div class="max-w-3xl mx-auto flex items-center gap-3">
                 <div class="w-8 h-8 bg-cadical-500 rounded-lg flex items-center justify-center"><i data-lucide="wrench" class="w-4 h-4 text-white"></i></div>
                 <div>
-                    <h1 class="font-bold text-slate-900">Book a Service</h1>
-                    <p class="text-xs text-slate-400">Medical equipment service request</p>
+                    <h1 class="font-bold text-slate-900">{{ $sw['banner_title'] ?? 'Book a Service' }}</h1>
+                    <p class="text-xs text-slate-400">{{ $sw['banner_sub'] ?? '' }}</p>
                 </div>
             </div>
         </div>

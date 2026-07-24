@@ -22,7 +22,7 @@
             @foreach ($marqueePartners as $p)
                 <div class="flex items-center justify-center h-20 w-44 md:h-24 md:w-52 shrink-0 bg-white border border-slate-100 rounded-xl px-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                     @if (! empty($p['logo']))
-                        <img src="{{ \App\Models\HomeSection::mediaUrl($p['logo']) }}" alt="{{ $p['name'] }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'" class="max-h-12 md:max-h-14 max-w-full object-contain grayscale hover:grayscale-0 transition-all duration-300">
+                        <img src="{{ \App\Models\HomeSection::mediaUrl($p['logo']) }}" alt="{{ $p['name'] }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'" class="max-h-12 md:max-h-14 max-w-full object-contain">
                         <span class="hidden text-sm md:text-base font-bold text-slate-400 text-center leading-tight tracking-tight">{{ $p['name'] }}</span>
                     @else
                         <span class="text-sm md:text-base font-bold text-slate-400 text-center leading-tight tracking-tight">{{ $p['name'] }}</span>
