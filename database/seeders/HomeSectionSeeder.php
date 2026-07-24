@@ -125,7 +125,7 @@ class HomeSectionSeeder extends Seeder
 
             'why' => [
                 'meta' => [
-                    'eyebrow' => 'Why Cadical', 'heading' => "Reliable supply is luxury.",
+                    'eyebrow' => 'Why Cadical', 'heading' => "Reliable supply is not luxury.",
                     'heading_accent' => "It's the baseline.",
                     'paragraph' => 'Most healthcare supply chains in Nigeria fail at the last mile: late deliveries, wrong products, no follow-up. We built Cadical to be the partner healthcare providers actually deserve.',
                     'image' => 'test.jpeg',
