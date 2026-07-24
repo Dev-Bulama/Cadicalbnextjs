@@ -263,7 +263,7 @@
                             currency: 'NGN',
                             payment_options: 'card, banktransfer, ussd',
                             customer: { email: this.form.email, phone_number: this.form.phone, name: `${this.form.firstName} ${this.form.lastName}` },
-                            customizations: { title: 'Cadical Store', description: 'Payment for medical products', logo: '{{ asset('images/logo.png') }}' },
+                            customizations: { title: 'Cadical Store', description: 'Payment for medical products', logo: '{{ \App\Models\HomeSection::mediaUrl(config('site.logo')) ?: asset('images/logo.png') }}' },
                             callback: (response) => this.handleGatewayResponse('flutterwave', response.transaction_id),
                             onclose: () => { this.isProcessing = false; this.$dispatch('cart-toast', { message: 'Payment cancelled' }) },
                         });
