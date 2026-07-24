@@ -1,14 +1,21 @@
 @extends('layouts.app')
 @section('content')
+@php
+    $siteLogo = \App\Models\HomeSection::mediaUrl(config('site.logo')) ?: asset('images/logo.png');
+    $isCustomLogo = filled(config('site.logo'));
+    $showSiteName = config('site.show_name') !== '0';
+@endphp
 <div class="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4 pt-20">
     <div class="w-full max-w-md">
         <div class="text-center mb-8">
             <a href="{{ url('/') }}" class="inline-flex items-center gap-2.5 mb-6">
-                <img src="{{ asset('images/logo.png') }}" alt="Cadical" class="w-10 h-10 rounded-xl">
-                <div class="text-left">
-                    <div class="text-cadical-500 font-bold text-base">Cadical Solutions</div>
-                    <div class="text-slate-400 text-xs">Right Supply. Right Time.</div>
-                </div>
+                <img src="{{ $siteLogo }}" alt="Cadical" class="w-10 h-10 {{ $isCustomLogo ? 'object-contain' : 'rounded-xl' }}">
+                @if ($showSiteName)
+                    <div class="text-left">
+                        <div class="text-cadical-500 font-bold text-base">Cadical Solutions</div>
+                        <div class="text-slate-400 text-xs">Right Supply. Right Time.</div>
+                    </div>
+                @endif
             </a>
             <h1 class="text-2xl font-bold text-slate-900">Create your account</h1>
             <p class="text-slate-500 text-sm mt-1">Join Nigeria's healthcare supply platform</p>

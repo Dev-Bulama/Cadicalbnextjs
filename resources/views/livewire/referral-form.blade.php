@@ -9,7 +9,7 @@
             <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                 <div class="flex items-center gap-4">
                     <div class="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center shadow-lg">
-                        <img src="{{ asset('images/logo.png') }}" alt="Cadical" class="w-8 h-8">
+                        <img src="{{ \App\Models\HomeSection::mediaUrl(config('site.logo')) ?: asset('images/logo.png') }}" alt="Cadical" class="w-8 h-8 object-contain">
                     </div>
                     <div>
                         <h1 class="text-2xl sm:text-3xl font-semibold text-white">Cadical Solutions Ltd</h1>
