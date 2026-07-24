@@ -11,6 +11,7 @@ Route::middleware(['auth', 'role:'.User::ROLE_SUPER_ADMIN.','.User::ROLE_ADMIN])
     Route::get('/', fn () => redirect()->route('admin.dashboard'));
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/homepage', fn () => view('admin.homepage'))->name('homepage');
+    Route::get('/page-content', fn () => view('admin.page-content'))->name('page-content');
     Route::get('/products', fn () => view('admin.products'))->name('products');
     Route::get('/orders', fn () => view('admin.orders'))->name('orders');
     Route::get('/bookings', fn () => view('admin.bookings'))->name('bookings');

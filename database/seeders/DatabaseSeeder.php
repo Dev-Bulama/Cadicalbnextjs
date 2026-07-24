@@ -52,6 +52,7 @@ class DatabaseSeeder extends Seeder
         $this->seedNotifications($users);
         $this->seedAuditLogs($users);
         $this->call(HomeSectionSeeder::class);
+        $this->call(PageContentSeeder::class);
 
         $this->command->info("Products: {$productCount}");
         $this->command->info('Seed complete. Password for all demo accounts: '.self::PASSWORD);
