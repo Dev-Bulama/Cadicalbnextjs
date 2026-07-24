@@ -38,7 +38,10 @@
                 @forelse ($orders as $order)
                     <tr wire:key="order-{{ $order->id }}" class="border-b border-slate-50 hover:bg-slate-50/50">
                         <td class="px-4 py-3 font-semibold text-slate-900">{{ $order->tracking_code }}</td>
-                        <td class="px-4 py-3 text-slate-600">{{ $order->user->email ?? '—' }}</td>
+                        <td class="px-4 py-3 text-slate-600">
+                            <div class="font-medium text-slate-900">{{ $order->customerName() }}</div>
+                            <div class="text-xs text-slate-400">{{ $order->customerEmail() ?? '—' }}</div>
+                        </td>
                         <td class="px-4 py-3 text-slate-600">₦{{ number_format($order->total_amount, 0) }}</td>
                         <td class="px-4 py-3"><x-admin.badge :color="$statusColors[$order->status] ?? 'slate'">{{ $order->status }}</x-admin.badge></td>
                         <td class="px-4 py-3 text-slate-500">{{ $order->created_at->format('M d, Y') }}</td>

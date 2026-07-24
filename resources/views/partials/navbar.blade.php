@@ -3,6 +3,7 @@
     $isCustomLogo = filled(config('site.logo'));
     $logoHeight = config('site.logo_height') ?: '32';
     $showSiteName = config('site.show_name') !== '0';
+    $navBarHeight = max(64, (int) $logoHeight + 16);
 @endphp
 <nav
     x-data="{
@@ -14,7 +15,8 @@
     x-init="window.addEventListener('scroll', () => scrolled = window.scrollY > 20, { passive: true })"
     x-effect="document.documentElement.style.overflow = open ? 'hidden' : ''"
     :class="scrolled ? 'bg-white/98 backdrop-blur-md shadow-sm border-b border-slate-100' : 'bg-white'"
-    class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 h-16 flex items-center px-4 md:px-8 justify-between"
+    style="height: {{ $navBarHeight }}px"
+    class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 flex items-center px-4 md:px-8 justify-between"
 >
     {{-- Logo --}}
     <a href="{{ url('/') }}" class="flex items-center gap-2.5 flex-shrink-0">
@@ -212,4 +214,4 @@
         </div>
     </div>
 </nav>
-<div class="h-16"></div>
+<div style="height: {{ $navBarHeight }}px"></div>

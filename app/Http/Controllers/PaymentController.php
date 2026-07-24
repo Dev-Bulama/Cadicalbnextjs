@@ -20,6 +20,8 @@ class PaymentController extends Controller
 
     public function verify(Request $request): JsonResponse
     {
+        $user = $request->user();
+
         $validated = $request->validate([
             'gateway' => ['required', 'in:flutterwave,paystack'],
             'reference' => ['required', 'string'],
@@ -27,12 +29,10 @@ class PaymentController extends Controller
             'cart_items.*.id' => ['required', 'integer', 'exists:products,id'],
             'cart_items.*.quantity' => ['required', 'integer', 'min:1'],
             'shipping_address' => ['required', 'string'],
+            'guest_name' => [$user ? 'nullable' : 'required', 'string', 'max:255'],
+            'guest_email' => [$user ? 'nullable' : 'required', 'email', 'max:255'],
+            'guest_phone' => ['nullable', 'string', 'max:30'],
         ]);
-
-        $user = $request->user();
-        if (! $user) {
-            return response()->json(['status' => 'unauthorized'], 401);
-        }
 
         $result = $validated['gateway'] === 'paystack'
             ? $this->paystack->verifyTransaction($validated['reference'])
@@ -60,7 +60,10 @@ class PaymentController extends Controller
             }
 
             $order = Order::create([
-                'user_id' => $user->id,
+                'user_id' => $user?->id,
+                'guest_name' => $user ? null : $validated['guest_name'],
+                'guest_email' => $user ? null : $validated['guest_email'],
+                'guest_phone' => $user ? null : ($validated['guest_phone'] ?? null),
                 'total_amount' => $totalAmount,
                 'tracking_code' => Order::generateTrackingCode(),
                 'payment_id' => $result['reference'],

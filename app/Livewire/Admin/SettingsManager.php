@@ -21,7 +21,7 @@ class SettingsManager extends Component
             'label' => 'Branding',
             'fields' => [
                 'site.logo' => ['label' => 'Site Logo', 'type' => 'image', 'hint' => 'Shown in the navbar and footer. Leave blank to use the default logo.'],
-                'site.logo_height' => ['label' => 'Logo Size', 'type' => 'select', 'options' => ['32' => 'Small (32px, default)', '40' => 'Medium (40px)', '48' => 'Large (48px)', '56' => 'X-Large (56px)', '64' => 'XX-Large (64px)'], 'hint' => 'Height of the logo in the navbar and footer — width scales automatically.'],
+                'site.logo_height' => ['label' => 'Logo Size', 'type' => 'select', 'options' => ['32' => 'Small (32px, default)', '40' => 'Medium (40px)', '48' => 'Large (48px)', '56' => 'X-Large (56px)', '64' => 'XX-Large (64px)', '80' => 'Huge (80px)', '96' => 'Maximum (96px)'], 'hint' => 'Height of the logo in the navbar and footer — width scales automatically, and the bar grows to fit it.'],
                 'site.show_name' => ['label' => 'Site Name Text', 'type' => 'boolean', 'checkboxLabel' => 'Show "Cadical Solutions" text next to the logo', 'default' => true, 'hint' => 'Turn off if your uploaded logo already includes the company name.'],
             ],
         ],

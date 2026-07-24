@@ -49,6 +49,8 @@ class OrdersManager extends Component
         $orders = Order::with('user')
             ->when($this->search !== '', function ($q) {
                 $q->where('tracking_code', 'like', '%'.$this->search.'%')
+                    ->orWhere('guest_email', 'like', '%'.$this->search.'%')
+                    ->orWhere('guest_name', 'like', '%'.$this->search.'%')
                     ->orWhereHas('user', fn ($u) => $u->where('email', 'like', '%'.$this->search.'%'));
             })
             ->when($this->statusFilter !== '', fn ($q) => $q->where('status', $this->statusFilter))
