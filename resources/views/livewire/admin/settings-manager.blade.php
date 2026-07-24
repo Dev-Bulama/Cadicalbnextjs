@@ -52,6 +52,11 @@
                                     <div wire:loading wire:target="valueFiles.{{ $loop->index }}" class="text-xs text-cadical-500">Uploading…</div>
                                 </div>
                             </div>
+                        @elseif ($field['type'] === 'boolean')
+                            <label class="flex items-center gap-2 mt-2">
+                                <input type="checkbox" wire:model="values.{{ $loop->index }}" class="rounded border-slate-300">
+                                <span class="text-sm text-slate-700">{{ $field['checkboxLabel'] ?? 'Enabled' }}</span>
+                            </label>
                         @else
                             <input type="text" wire:model="values.{{ $loop->index }}" placeholder="{{ $field['placeholder'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mt-1">
                         @endif
