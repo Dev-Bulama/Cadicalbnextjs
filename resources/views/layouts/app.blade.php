@@ -130,5 +130,8 @@
     @livewireScripts
     {{ $scripts ?? '' }}
     @yield('scripts')
+
+    {{-- Admin-configured chat widget / third-party embed — deliberately unescaped, see /admin/settings → Integrations --}}
+    {!! config('site.chatbot_script') !!}
 </body>
 </html>
