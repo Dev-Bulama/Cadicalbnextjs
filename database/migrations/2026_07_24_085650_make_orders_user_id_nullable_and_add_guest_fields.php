@@ -16,8 +16,17 @@ return new class extends Migration
             $table->dropForeign(['user_id']);
         });
 
-        // doctrine/dbal isn't installed, so ->nullable()->change() isn't available — modify directly.
-        DB::statement('ALTER TABLE orders MODIFY user_id BIGINT UNSIGNED NULL');
+        // doctrine/dbal isn't installed, so Blueprint::change() isn't available on MySQL —
+        // modify directly. SQLite (used by the test suite) has no MODIFY-column syntax, but
+        // Laravel's SQLite grammar can apply ->change() natively (table-rebuild under the
+        // hood) without needing doctrine/dbal, unlike MySQL/Postgres.
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->unsignedBigInteger('user_id')->nullable()->change();
+            });
+        } else {
+            DB::statement('ALTER TABLE orders MODIFY user_id BIGINT UNSIGNED NULL');
+        }
 
         Schema::table('orders', function (Blueprint $table) {
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
@@ -37,7 +46,13 @@ return new class extends Migration
             $table->dropForeign(['user_id']);
         });
 
-        DB::statement('ALTER TABLE orders MODIFY user_id BIGINT UNSIGNED NOT NULL');
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->unsignedBigInteger('user_id')->nullable(false)->change();
+            });
+        } else {
+            DB::statement('ALTER TABLE orders MODIFY user_id BIGINT UNSIGNED NOT NULL');
+        }
 
         Schema::table('orders', function (Blueprint $table) {
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();

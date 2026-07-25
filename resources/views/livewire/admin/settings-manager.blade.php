@@ -74,6 +74,16 @@
                     </div>
                 @endforeach
             </div>
+
+            @if ($activeGroup === 'payments')
+                <div class="mt-4 pt-4 border-t border-slate-100 flex items-center gap-3">
+                    <button wire:click="testFlutterwaveConnection" wire:loading.attr="disabled" wire:target="testFlutterwaveConnection" class="h-9 px-4 border border-slate-200 hover:border-cadical-500 hover:text-cadical-500 rounded-lg text-sm font-semibold disabled:opacity-60 transition-colors">
+                        <span wire:loading.remove wire:target="testFlutterwaveConnection">Test Flutterwave Connection</span>
+                        <span wire:loading wire:target="testFlutterwaveConnection">Testing…</span>
+                    </button>
+                    <p class="text-[11px] text-slate-400">Checks the Client ID/Secret above against Flutterwave — does not save anything.</p>
+                </div>
+            @endif
         </div>
     </div>
 </div>

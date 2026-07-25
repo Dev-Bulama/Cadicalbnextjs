@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
 @section('head')
-    <script src="https://checkout.flutterwave.com/v3.js"></script>
+    {{-- Flutterwave V4 is OAuth-only (Client ID/Secret, server-to-server) — there is no
+         client-side widget or public key to load; payment happens on Flutterwave's own
+         hosted page, see FlutterwaveCheckoutController. --}}
     <script src="https://js.paystack.co/v2/inline.js"></script>
 @endsection
 
@@ -11,12 +13,12 @@
 @endphp
 <div
     x-data="checkoutPage({
-        publicKeyFlutterwave: {{ Illuminate\Support\Js::from(config('services.flutterwave.public_key')) }},
         publicKeyPaystack: {{ Illuminate\Support\Js::from(config('services.paystack.public_key')) }},
         userEmail: {{ Illuminate\Support\Js::from($user->email ?? '') }},
         userName: {{ Illuminate\Support\Js::from($user->name ?? '') }},
         isGuest: {{ Illuminate\Support\Js::from(! $user) }},
         verifyUrl: {{ Illuminate\Support\Js::from(url('/checkout/verify')) }},
+        flutterwaveInitiateUrl: {{ Illuminate\Support\Js::from(url('/checkout/flutterwave/initiate')) }},
         csrfToken: {{ Illuminate\Support\Js::from(csrf_token()) }},
     })"
     class="min-h-screen flex flex-col bg-slate-50 pt-16"
@@ -225,9 +227,39 @@
             get stepIndex() { return ['shipping', 'payment', 'confirmation'].indexOf(this.step) },
 
             init() {
+                if (this.handleFlutterwaveReturn()) {
+                    return;
+                }
                 if (this.$store.cart.items.length === 0 && this.step !== 'confirmation') {
                     window.location.href = '{{ url('/cart') }}';
                 }
+            },
+
+            // The browser fully navigates away to Flutterwave's hosted page and back
+            // (V4 has no in-page widget), so this picks up where FlutterwaveCheckoutController's
+            // redirect left off, instead of a JS callback like the Paystack popup uses.
+            handleFlutterwaveReturn() {
+                const params = new URLSearchParams(window.location.search);
+                if (!params.has('flutterwave')) {
+                    return false;
+                }
+
+                const outcome = params.get('flutterwave');
+                history.replaceState(null, '', window.location.pathname);
+
+                if (outcome === 'success') {
+                    this.orderResult = {
+                        tracking_code: params.get('tracking_code'),
+                        total_amount: params.get('total'),
+                    };
+                    this.$store.cart.clearCart();
+                    this.step = 'confirmation';
+                    this.$dispatch('cart-toast', { message: 'Payment successful!' });
+                } else {
+                    this.$dispatch('cart-toast', { message: outcome === 'missing' ? 'We could not find that order — please try again.' : 'Payment failed or was cancelled. Please try again.' });
+                }
+
+                return true;
             },
 
             submitShipping() {
@@ -263,23 +295,30 @@
 
                 try {
                     if (this.gateway === 'flutterwave') {
-                        if (typeof FlutterwaveCheckout !== 'function') {
-                            throw new Error('Flutterwave checkout failed to load. Check your connection and try again.');
-                        }
-                        if (!cfg.publicKeyFlutterwave) {
-                            throw new Error('Flutterwave is not configured yet. Try Paystack, or contact support.');
-                        }
-                        FlutterwaveCheckout({
-                            public_key: cfg.publicKeyFlutterwave,
-                            tx_ref: txRef,
-                            amount: amount,
-                            currency: 'NGN',
-                            payment_options: 'card, banktransfer, ussd',
-                            customer: { email: email, phone_number: this.form.phone, name: `${this.form.firstName} ${this.form.lastName}` },
-                            customizations: { title: 'Cadical Store', description: 'Payment for medical products', logo: '{{ \App\Models\HomeSection::mediaUrl(config('site.logo')) ?: asset('images/logo.png') }}' },
-                            callback: (response) => this.handleGatewayResponse('flutterwave', response.transaction_id),
-                            onclose: () => { this.isProcessing = false; this.$dispatch('cart-toast', { message: 'Payment cancelled' }) },
+                        // V4 has no client-side widget: the backend creates the order +
+                        // charge server-side and hands back a hosted checkout URL to
+                        // redirect the browser to. Payment completion is picked up again
+                        // in handleFlutterwaveReturn() above, after Flutterwave redirects back.
+                        const res = await fetch(cfg.flutterwaveInitiateUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': cfg.csrfToken },
+                            body: JSON.stringify({
+                                cart_items: this.$store.cart.items.map(i => ({ id: i.id, quantity: i.quantity })),
+                                shipping_address: `${this.form.address}, ${this.form.city}, ${this.form.state} ${this.form.zipCode}, ${this.form.country}`.trim(),
+                                email: email,
+                                name: `${this.form.firstName} ${this.form.lastName}`.trim(),
+                                phone: this.form.phone,
+                                guest_name: cfg.isGuest ? `${this.form.firstName} ${this.form.lastName}`.trim() : undefined,
+                                guest_email: cfg.isGuest ? email : undefined,
+                                guest_phone: cfg.isGuest ? this.form.phone : undefined,
+                            }),
                         });
+                        const data = await res.json();
+                        if (data.status !== 'ok' || !data.checkout_url) {
+                            throw new Error(data.message || 'Could not start Flutterwave payment.');
+                        }
+                        window.location.href = data.checkout_url;
+                        return;
                     } else {
                         if (typeof PaystackPop === 'undefined') {
                             throw new Error('Paystack checkout failed to load. Check your connection and try again.');
