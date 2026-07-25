@@ -19,7 +19,7 @@ class Setting extends Model
     public const ENCRYPTED_KEYS = [
         'services.flutterwave.client_secret',
         'services.flutterwave.encryption_key',
-        'services.flutterwave.webhook_secret_hash',
+        'services.flutterwave.webhook_secret',
     ];
 
     public static function get(string $key, mixed $default = null): mixed

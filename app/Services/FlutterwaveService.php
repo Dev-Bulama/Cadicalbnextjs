@@ -69,6 +69,35 @@ class FlutterwaveService
         return (bool) $this->getAccessToken($clientId, $clientSecret, forceRefresh: true);
     }
 
+    /**
+     * Consolidated status behind the admin "Test Connection" button: OAuth
+     * reachability (with the given, or configured, credentials) AND whether
+     * a webhook secret is set — both are required for the integration to
+     * actually take real payments end-to-end, not just authenticate.
+     *
+     * @return array{oauth_connected: bool, webhook_secret_configured: bool, ready: bool, message: string}
+     */
+    public function runDiagnostics(?string $clientId = null, ?string $clientSecret = null): array
+    {
+        $oauthConnected = $this->testConnection($clientId, $clientSecret);
+        $webhookConfigured = filled(config('services.flutterwave.webhook_secret'));
+        $ready = $oauthConnected && $webhookConfigured;
+
+        $message = match (true) {
+            $ready => '✔ Everything Ready — OAuth connected and webhook secret configured.',
+            ! $oauthConnected && ! $webhookConfigured => '✗ Authentication failed, and no webhook secret is configured.',
+            ! $oauthConnected => '✗ Authentication failed — check your Client ID and Secret.',
+            default => '⚠ OAuth connected, but no webhook secret is configured yet — webhooks will be rejected until you set one.',
+        };
+
+        return [
+            'oauth_connected' => $oauthConnected,
+            'webhook_secret_configured' => $webhookConfigured,
+            'ready' => $ready,
+            'message' => $message,
+        ];
+    }
+
     private function requestNewToken(string $clientId, string $clientSecret, string $cacheKey): ?string
     {
         try {
@@ -79,7 +108,7 @@ class FlutterwaveService
             ]);
 
             if (! $response->successful()) {
-                Log::warning('Flutterwave OAuth token request failed', ['status' => $response->status()]);
+                Log::channel('flutterwave')->warning('Flutterwave OAuth token request failed', ['status' => $response->status()]);
 
                 return null;
             }
@@ -88,7 +117,7 @@ class FlutterwaveService
             $token = $data['access_token'] ?? null;
 
             if (! $token) {
-                Log::warning('Flutterwave OAuth response missing access_token');
+                Log::channel('flutterwave')->warning('Flutterwave OAuth response missing access_token');
 
                 return null;
             }
@@ -100,7 +129,7 @@ class FlutterwaveService
 
             return $token;
         } catch (Throwable $e) {
-            Log::error('Flutterwave OAuth token request threw an exception', ['message' => $e->getMessage()]);
+            Log::channel('flutterwave')->error('Flutterwave OAuth token request threw an exception', ['message' => $e->getMessage()]);
 
             return null;
         }
@@ -160,7 +189,7 @@ class FlutterwaveService
      * from initiateCharge() and passed back to us — never trust the
      * frontend/redirect alone, this always calls Flutterwave's API).
      *
-     * @return array{successful: bool, amount?: float, currency?: string, reference?: string, raw?: array}
+     * @return array{successful: bool, id?: string, status?: string, amount?: float, currency?: string, reference?: string, customer_email?: string, raw?: array}
      */
     public function verifyTransaction(string $chargeId): array
     {
@@ -174,9 +203,12 @@ class FlutterwaveService
 
         return [
             'successful' => $successful,
+            'id' => $data['id'] ?? $chargeId,
+            'status' => $data['status'] ?? null,
             'amount' => $data['amount'] ?? null,
             'currency' => $data['currency'] ?? null,
             'reference' => $data['reference'] ?? $chargeId,
+            'customer_email' => $data['customer']['email'] ?? null,
             'raw' => $data,
         ];
     }
@@ -191,10 +223,10 @@ class FlutterwaveService
      */
     public function verifyWebhookSignature(string $rawBody, ?string $signatureHeader, ?string $legacyHashHeader): bool
     {
-        $secretHash = config('services.flutterwave.webhook_secret_hash');
+        $secretHash = config('services.flutterwave.webhook_secret');
 
         if (blank($secretHash)) {
-            Log::warning('Flutterwave webhook received but no webhook secret hash is configured — rejecting.');
+            Log::channel('flutterwave')->warning('Flutterwave webhook received but no webhook secret is configured — rejecting.');
 
             return false;
         }
@@ -244,14 +276,14 @@ class FlutterwaveService
             }
 
             if (! $response->successful()) {
-                Log::warning('Flutterwave API request failed', ['path' => $path, 'status' => $response->status()]);
+                Log::channel('flutterwave')->warning('Flutterwave API request failed', ['path' => $path, 'status' => $response->status()]);
 
                 return null;
             }
 
             return $response->json();
         } catch (Throwable $e) {
-            Log::error('Flutterwave API request threw an exception', ['path' => $path, 'message' => $e->getMessage()]);
+            Log::channel('flutterwave')->error('Flutterwave API request threw an exception', ['path' => $path, 'message' => $e->getMessage()]);
 
             return null;
         }

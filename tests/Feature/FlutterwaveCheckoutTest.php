@@ -22,7 +22,7 @@ class FlutterwaveCheckoutTest extends TestCase
         config([
             'services.flutterwave.client_id' => 'test-client-id',
             'services.flutterwave.client_secret' => 'test-client-secret',
-            'services.flutterwave.webhook_secret_hash' => 'test-webhook-secret',
+            'services.flutterwave.webhook_secret' => 'test-webhook-secret',
         ]);
     }
 
@@ -172,12 +172,114 @@ class FlutterwaveCheckoutTest extends TestCase
         $this->postJson('/checkout/flutterwave/initiate', $this->initiatePayload($product));
         $order = Order::first();
 
+        // The webhook payload alone is never trusted — the controller always re-verifies
+        // via this endpoint using the charge id *we* stored, regardless of what the
+        // payload's own status field claims.
+        Http::fake([
+            'idp.flutterwave.com/*' => Http::response(['access_token' => 'tok', 'expires_in' => 3600], 200),
+            'api.flutterwave.cloud/*/charges/chg_3' => Http::response(['id' => 'chg_3', 'status' => 'succeeded', 'amount' => 10000, 'currency' => 'NGN'], 200),
+        ]);
+
         $body = json_encode(['type' => 'charge.completed', 'data' => ['reference' => $order->tracking_code, 'status' => 'succeeded']]);
         $signature = hash_hmac('sha256', $body, 'test-webhook-secret');
 
-        $this->postWebhook($body, $signature)->assertOk()->assertJson(['received' => true]);
+        $this->postWebhook($body, $signature)->assertOk()->assertJson(['received' => true, 'processed' => true]);
 
-        $this->assertSame(Order::STATUS_PAID, $order->fresh()->status);
+        $order->refresh();
+        $this->assertSame(Order::STATUS_PAID, $order->status);
+        $this->assertSame('chg_3', $order->flutterwave_transaction_id);
+        $this->assertNotNull($order->paid_at);
+    }
+
+    public function test_webhook_ignores_the_payloads_claimed_status_and_trusts_only_the_verification_api(): void
+    {
+        $product = $this->makeProduct(10000);
+        Http::fake([
+            'idp.flutterwave.com/*' => Http::response(['access_token' => 'tok', 'expires_in' => 3600], 200),
+            'api.flutterwave.cloud/*/charges' => Http::response(['id' => 'chg_7', 'status' => 'pending', 'redirect_url' => 'https://x/pay'], 201),
+        ]);
+        $this->postJson('/checkout/flutterwave/initiate', $this->initiatePayload($product));
+        $order = Order::first();
+
+        // A payload *claiming* success, but the authoritative verification API says otherwise.
+        Http::fake([
+            'idp.flutterwave.com/*' => Http::response(['access_token' => 'tok', 'expires_in' => 3600], 200),
+            'api.flutterwave.cloud/*/charges/chg_7' => Http::response(['id' => 'chg_7', 'status' => 'pending'], 200),
+        ]);
+
+        $body = json_encode(['type' => 'charge.completed', 'data' => ['reference' => $order->tracking_code, 'status' => 'succeeded']]);
+        $signature = hash_hmac('sha256', $body, 'test-webhook-secret');
+
+        $this->postWebhook($body, $signature)->assertOk()->assertJson(['received' => true, 'processed' => false]);
+
+        $this->assertSame(Order::STATUS_CANCELLED, $order->fresh()->status);
+    }
+
+    public function test_webhook_refuses_to_mark_paid_when_verified_amount_does_not_match_the_order(): void
+    {
+        $product = $this->makeProduct(10000);
+        Http::fake([
+            'idp.flutterwave.com/*' => Http::response(['access_token' => 'tok', 'expires_in' => 3600], 200),
+            'api.flutterwave.cloud/*/charges' => Http::response(['id' => 'chg_8', 'status' => 'pending', 'redirect_url' => 'https://x/pay'], 201),
+        ]);
+        $this->postJson('/checkout/flutterwave/initiate', $this->initiatePayload($product));
+        $order = Order::first();
+
+        // Verification says "succeeded", but for a different amount than the order total —
+        // never trust the payload's amount, but also never trust a mismatched verified amount.
+        Http::fake([
+            'idp.flutterwave.com/*' => Http::response(['access_token' => 'tok', 'expires_in' => 3600], 200),
+            'api.flutterwave.cloud/*/charges/chg_8' => Http::response(['id' => 'chg_8', 'status' => 'succeeded', 'amount' => 1, 'currency' => 'NGN'], 200),
+        ]);
+
+        $body = json_encode(['type' => 'charge.completed', 'data' => ['reference' => $order->tracking_code, 'status' => 'succeeded']]);
+        $signature = hash_hmac('sha256', $body, 'test-webhook-secret');
+
+        $this->postWebhook($body, $signature)->assertStatus(422)->assertJson(['error' => 'amount_mismatch']);
+
+        $this->assertSame(Order::STATUS_PENDING, $order->fresh()->status);
+    }
+
+    public function test_webhook_returns_422_for_a_malformed_payload(): void
+    {
+        $body = json_encode(['type' => 'charge.completed']); // no data.reference at all
+
+        $response = $this->postWebhook($body, hash_hmac('sha256', $body, 'test-webhook-secret'));
+
+        $response->assertStatus(422)->assertJson(['error' => 'malformed_payload']);
+    }
+
+    public function test_webhook_acknowledges_but_does_nothing_for_an_unknown_order_reference(): void
+    {
+        $body = json_encode(['type' => 'charge.completed', 'data' => ['reference' => 'TRK-DOES-NOT-EXIST', 'status' => 'succeeded']]);
+        $signature = hash_hmac('sha256', $body, 'test-webhook-secret');
+
+        $this->postWebhook($body, $signature)
+            ->assertOk()
+            ->assertJson(['received' => true, 'processed' => false, 'reason' => 'order_not_found']);
+    }
+
+    public function test_webhook_acknowledges_but_does_nothing_when_the_order_has_no_stored_charge_id(): void
+    {
+        $order = Order::create([
+            'total_amount' => 10000,
+            'tracking_code' => Order::generateTrackingCode(),
+            'payment_method' => 'FLUTTERWAVE',
+            'shipping_address' => 'addr',
+            'status' => Order::STATUS_PENDING,
+            'guest_name' => 'Jane', 'guest_email' => 'buyer@example.com',
+            // payment_id intentionally left null — e.g. initiate() crashed after creating
+            // the order but before Flutterwave returned a charge id.
+        ]);
+
+        $body = json_encode(['type' => 'charge.completed', 'data' => ['reference' => $order->tracking_code, 'status' => 'succeeded']]);
+        $signature = hash_hmac('sha256', $body, 'test-webhook-secret');
+
+        $this->postWebhook($body, $signature)
+            ->assertOk()
+            ->assertJson(['received' => true, 'processed' => false, 'reason' => 'no_charge_id']);
+
+        $this->assertSame(Order::STATUS_PENDING, $order->fresh()->status);
     }
 
     public function test_webhook_rejects_an_invalid_signature_and_does_not_touch_the_order(): void
@@ -192,7 +294,7 @@ class FlutterwaveCheckoutTest extends TestCase
 
         $body = json_encode(['type' => 'charge.completed', 'data' => ['reference' => $order->tracking_code, 'status' => 'succeeded']]);
 
-        $this->postWebhook($body, 'not-a-real-signature')->assertStatus(401);
+        $this->postWebhook($body, 'not-a-real-signature')->assertStatus(403)->assertJson(['error' => 'invalid_signature']);
 
         $this->assertSame(Order::STATUS_PENDING, $order->fresh()->status);
     }
@@ -207,14 +309,19 @@ class FlutterwaveCheckoutTest extends TestCase
         $this->postJson('/checkout/flutterwave/initiate', $this->initiatePayload($product));
         $order = Order::first();
 
+        Http::fake([
+            'idp.flutterwave.com/*' => Http::response(['access_token' => 'tok', 'expires_in' => 3600], 200),
+            'api.flutterwave.cloud/*/charges/chg_4' => Http::response(['id' => 'chg_4', 'status' => 'succeeded', 'amount' => 10000, 'currency' => 'NGN'], 200),
+        ]);
+
         $body = json_encode(['type' => 'charge.completed', 'data' => ['reference' => $order->tracking_code, 'status' => 'succeeded']]);
         $signature = hash_hmac('sha256', $body, 'test-webhook-secret');
 
-        $this->postWebhook($body, $signature)->assertOk();
+        $this->postWebhook($body, $signature)->assertOk()->assertJson(['processed' => true]);
         $this->assertCount(1, $order->fresh()->trackingEvents);
 
         // Flutterwave (or any at-least-once webhook sender) may redeliver the same event.
-        $this->postWebhook($body, $signature)->assertOk();
+        $this->postWebhook($body, $signature)->assertOk()->assertJson(['received' => true, 'processed' => false, 'reason' => 'duplicate']);
 
         $this->assertCount(1, $order->fresh()->trackingEvents);
         $this->assertSame(Order::STATUS_PAID, $order->fresh()->status);
@@ -230,17 +337,18 @@ class FlutterwaveCheckoutTest extends TestCase
         $this->postJson('/checkout/flutterwave/initiate', $this->initiatePayload($product));
         $order = Order::first();
 
+        Http::fake([
+            'idp.flutterwave.com/*' => Http::response(['access_token' => 'tok', 'expires_in' => 3600], 200),
+            'api.flutterwave.cloud/*/charges/chg_6' => Http::response(['id' => 'chg_6', 'status' => 'succeeded', 'amount' => 10000, 'currency' => 'NGN'], 200),
+        ]);
+
         // Webhook arrives first.
         $body = json_encode(['type' => 'charge.completed', 'data' => ['reference' => $order->tracking_code, 'status' => 'succeeded']]);
         $signature = hash_hmac('sha256', $body, 'test-webhook-secret');
-        $this->postWebhook($body, $signature)->assertOk();
+        $this->postWebhook($body, $signature)->assertOk()->assertJson(['processed' => true]);
 
         // Customer's browser redirect back lands second — verifyTransaction() would report
         // succeeded too, but markFlutterwavePaid() must no-op since it's no longer PENDING.
-        Http::fake([
-            'idp.flutterwave.com/*' => Http::response(['access_token' => 'tok', 'expires_in' => 3600], 200),
-            'api.flutterwave.cloud/*/charges/chg_6' => Http::response(['id' => 'chg_6', 'status' => 'succeeded', 'amount' => 10000], 200),
-        ]);
         $this->get('/checkout/flutterwave/callback/'.$order->tracking_code)->assertRedirect();
 
         $this->assertCount(1, $order->fresh()->trackingEvents);

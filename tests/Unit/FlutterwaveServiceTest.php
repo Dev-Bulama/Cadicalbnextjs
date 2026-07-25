@@ -21,7 +21,7 @@ class FlutterwaveServiceTest extends TestCase
             'services.flutterwave.client_secret' => 'test-client-secret',
             'services.flutterwave.oauth_url' => 'https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token',
             'services.flutterwave.base_url' => 'https://api.flutterwave.cloud/f4b/production',
-            'services.flutterwave.webhook_secret_hash' => 'test-webhook-secret',
+            'services.flutterwave.webhook_secret' => 'test-webhook-secret',
         ]);
     }
 
@@ -177,7 +177,7 @@ class FlutterwaveServiceTest extends TestCase
 
     public function test_webhook_rejected_when_no_secret_hash_is_configured(): void
     {
-        config(['services.flutterwave.webhook_secret_hash' => null]);
+        config(['services.flutterwave.webhook_secret' => null]);
 
         $this->assertFalse($this->service->verifyWebhookSignature('{}', 'anything', null));
     }

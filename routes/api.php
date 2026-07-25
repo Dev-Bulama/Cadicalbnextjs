@@ -10,4 +10,4 @@ Route::middleware('auth:sanctum')->get('/user', function () {
 });
 
 Route::post('/crm/webhook', [CrmWebhookController::class, 'handle']);
-Route::post('/webhooks/flutterwave', [FlutterwaveWebhookController::class, 'handle']);
+Route::post('/webhooks/flutterwave', [FlutterwaveWebhookController::class, 'handle'])->name('webhooks.flutterwave');

@@ -73,6 +73,19 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Dedicated channel for Flutterwave OAuth/webhook/verification activity —
+        // keeps payment-gateway noise out of the main log and easy to find/rotate
+        // separately. Never given secrets to write (see FlutterwaveService,
+        // FlutterwaveWebhookController — client secret, encryption key and OAuth
+        // token are never passed into any log call).
+        'flutterwave' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/flutterwave.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('LOG_DAILY_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
