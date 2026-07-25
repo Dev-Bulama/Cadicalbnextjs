@@ -99,7 +99,7 @@ class FlutterwaveCheckoutController extends Controller
         ]);
 
         if (! $charge['successful'] || empty($charge['checkout_url'])) {
-            Log::warning('Flutterwave charge initiation failed', ['tracking_code' => $order->tracking_code]);
+            Log::channel('flutterwave')->warning('Flutterwave charge initiation failed', ['tracking_code' => $order->tracking_code]);
             $order->delete();
 
             return response()->json(['status' => 'error', 'message' => 'Could not start Flutterwave payment. Please try again or use Paystack.'], 502);
@@ -115,16 +115,23 @@ class FlutterwaveCheckoutController extends Controller
         $order = Order::where('tracking_code', $ref)->where('payment_method', 'FLUTTERWAVE')->first();
 
         if (! $order) {
+            Log::channel('flutterwave')->warning('Redirect callback for unknown order reference.', ['ref' => $ref]);
+
             return redirect()->to('/checkout?flutterwave=missing');
         }
 
         if ($order->status === Order::STATUS_PENDING && $order->payment_id) {
             $result = $this->flutterwave->verifyTransaction($order->payment_id);
 
-            if ($result['successful']) {
-                $order->markFlutterwavePaid();
+            if (! empty($result['successful']) && $order->verifiedAmountMatches($result)) {
+                $order->markFlutterwavePaid($result);
             } else {
-                $order->markFlutterwaveFailed();
+                if (! empty($result['successful'])) {
+                    Log::channel('flutterwave')->error('Redirect callback: verified amount/currency mismatch — refusing to mark paid.', [
+                        'tracking_code' => $order->tracking_code,
+                    ]);
+                }
+                $order->markFlutterwaveFailed($result);
             }
         }
 

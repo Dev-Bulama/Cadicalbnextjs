@@ -76,12 +76,33 @@
             </div>
 
             @if ($activeGroup === 'payments')
-                <div class="mt-4 pt-4 border-t border-slate-100 flex items-center gap-3">
-                    <button wire:click="testFlutterwaveConnection" wire:loading.attr="disabled" wire:target="testFlutterwaveConnection" class="h-9 px-4 border border-slate-200 hover:border-cadical-500 hover:text-cadical-500 rounded-lg text-sm font-semibold disabled:opacity-60 transition-colors">
-                        <span wire:loading.remove wire:target="testFlutterwaveConnection">Test Flutterwave Connection</span>
-                        <span wire:loading wire:target="testFlutterwaveConnection">Testing…</span>
-                    </button>
-                    <p class="text-[11px] text-slate-400">Checks the Client ID/Secret above against Flutterwave — does not save anything.</p>
+                <div class="mt-4 pt-4 border-t border-slate-100 space-y-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <label class="text-xs font-medium text-slate-500">Flutterwave Webhook URL</label>
+                            @if ($this->flutterwaveWebhookConfigured())
+                                <span class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">✔ Configured</span>
+                            @else
+                                <span class="text-[10px] font-semibold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">⚠ Not Configured</span>
+                            @endif
+                        </div>
+                        <div x-data="{ copied: false }" class="flex items-center gap-2">
+                            <input type="text" readonly value="{{ $this->flutterwaveWebhookUrl() }}" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 text-slate-600" onclick="this.select()">
+                            <button type="button" @click="navigator.clipboard.writeText('{{ $this->flutterwaveWebhookUrl() }}'); copied = true; setTimeout(() => copied = false, 1500)" class="h-9 px-3 border border-slate-200 hover:border-cadical-500 hover:text-cadical-500 rounded-lg text-xs font-semibold transition-colors shrink-0">
+                                <span x-show="!copied">Copy</span>
+                                <span x-show="copied" x-cloak>Copied!</span>
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-1">Paste this into your Flutterwave dashboard's webhook settings, alongside the Webhook Secret above.</p>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <button wire:click="testFlutterwaveConnection" wire:loading.attr="disabled" wire:target="testFlutterwaveConnection" class="h-9 px-4 border border-slate-200 hover:border-cadical-500 hover:text-cadical-500 rounded-lg text-sm font-semibold disabled:opacity-60 transition-colors">
+                            <span wire:loading.remove wire:target="testFlutterwaveConnection">Test Flutterwave Connection</span>
+                            <span wire:loading wire:target="testFlutterwaveConnection">Testing…</span>
+                        </button>
+                        <p class="text-[11px] text-slate-400">Checks OAuth and webhook secret configuration — does not save anything.</p>
+                    </div>
                 </div>
             @endif
         </div>

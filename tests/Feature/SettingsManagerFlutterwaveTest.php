@@ -31,7 +31,8 @@ class SettingsManagerFlutterwaveTest extends TestCase
             ->assertSee('Flutterwave Client ID')
             ->assertSee('Flutterwave Client Secret')
             ->assertSee('Flutterwave Encryption Key')
-            ->assertSee('Flutterwave Webhook Secret Hash')
+            ->assertSee('Flutterwave Webhook Secret')
+            ->assertSee('Flutterwave Webhook URL')
             ->assertSee('Paystack Public Key') // untouched, still present
             ->assertSee('Paystack Secret Key') // untouched, still present
             ->assertDontSee('Flutterwave Public Key')
@@ -101,6 +102,7 @@ class SettingsManagerFlutterwaveTest extends TestCase
     {
         $this->actingAsAdmin();
 
+        config(['services.flutterwave.webhook_secret' => 'already-configured']);
         Http::fake(['idp.flutterwave.com/*' => Http::response(['error' => 'invalid_client'], 401)]);
 
         $keys = array_keys(SettingsManager::GROUPS['payments']['fields']);
@@ -114,5 +116,54 @@ class SettingsManagerFlutterwaveTest extends TestCase
             ->call('testFlutterwaveConnection');
 
         $component->assertDispatched('cart-toast', message: '✗ Authentication failed — check your Client ID and Secret.');
+    }
+
+    public function test_test_connection_reports_everything_ready_when_both_oauth_and_webhook_secret_are_set(): void
+    {
+        $this->actingAsAdmin();
+
+        config(['services.flutterwave.webhook_secret' => 'already-configured']);
+        Http::fake(['idp.flutterwave.com/*' => Http::response(['access_token' => 'tok', 'expires_in' => 3600], 200)]);
+
+        $keys = array_keys(SettingsManager::GROUPS['payments']['fields']);
+        $clientIdIndex = array_search('services.flutterwave.client_id', $keys, true);
+        $clientSecretIndex = array_search('services.flutterwave.client_secret', $keys, true);
+
+        Livewire::test(SettingsManager::class)
+            ->call('switchGroup', 'payments')
+            ->set("values.{$clientIdIndex}", 'good-id')
+            ->set("values.{$clientSecretIndex}", 'good-secret')
+            ->call('testFlutterwaveConnection')
+            ->assertDispatched('cart-toast', message: '✔ Everything Ready — OAuth connected and webhook secret configured.');
+    }
+
+    public function test_test_connection_warns_when_oauth_works_but_webhook_secret_is_missing(): void
+    {
+        $this->actingAsAdmin();
+
+        Http::fake(['idp.flutterwave.com/*' => Http::response(['access_token' => 'tok', 'expires_in' => 3600], 200)]);
+
+        $keys = array_keys(SettingsManager::GROUPS['payments']['fields']);
+        $clientIdIndex = array_search('services.flutterwave.client_id', $keys, true);
+        $clientSecretIndex = array_search('services.flutterwave.client_secret', $keys, true);
+
+        Livewire::test(SettingsManager::class)
+            ->call('switchGroup', 'payments')
+            ->set("values.{$clientIdIndex}", 'good-id')
+            ->set("values.{$clientSecretIndex}", 'good-secret')
+            ->call('testFlutterwaveConnection')
+            ->assertDispatched('cart-toast', message: '⚠ OAuth connected, but no webhook secret is configured yet — webhooks will be rejected until you set one.');
+    }
+
+    public function test_webhook_url_is_displayed_and_status_badge_reflects_configuration(): void
+    {
+        $this->actingAsAdmin();
+
+        $component = Livewire::test(SettingsManager::class)->call('switchGroup', 'payments');
+        $component->assertSee(route('webhooks.flutterwave'))->assertSee('Not Configured');
+
+        config(['services.flutterwave.webhook_secret' => 'configured-value']);
+
+        Livewire::test(SettingsManager::class)->call('switchGroup', 'payments')->assertSee('✔ Configured');
     }
 }

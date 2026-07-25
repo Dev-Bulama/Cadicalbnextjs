@@ -34,7 +34,7 @@ class SettingsManager extends Component
                 'services.flutterwave.client_id' => ['label' => 'Flutterwave Client ID', 'type' => 'text', 'placeholder' => 'e.g. 5a1b0439-3810-4861-857b-55e1337912f8', 'env' => 'FLUTTERWAVE_CLIENT_ID', 'hint' => 'Dashboard → Developers → API Keys → V4 Live API Keys.'],
                 'services.flutterwave.client_secret' => ['label' => 'Flutterwave Client Secret', 'type' => 'password', 'env' => 'FLUTTERWAVE_CLIENT_SECRET'],
                 'services.flutterwave.encryption_key' => ['label' => 'Flutterwave Encryption Key', 'type' => 'password', 'env' => 'FLUTTERWAVE_ENCRYPTION_KEY'],
-                'services.flutterwave.webhook_secret_hash' => ['label' => 'Flutterwave Webhook Secret Hash', 'type' => 'password', 'env' => 'FLUTTERWAVE_WEBHOOK_SECRET_HASH', 'hint' => 'Set the same value in your Flutterwave dashboard\'s webhook settings — used to verify that incoming webhook calls really are from Flutterwave.'],
+                'services.flutterwave.webhook_secret' => ['label' => 'Flutterwave Webhook Secret', 'type' => 'password', 'env' => 'FLUTTERWAVE_WEBHOOK_SECRET', 'hint' => 'Set the same value in your Flutterwave dashboard\'s webhook settings — used to verify that incoming webhook calls really are from Flutterwave.'],
                 'services.paystack.public_key' => ['label' => 'Paystack Public Key', 'type' => 'text', 'env' => 'PAYSTACK_PUBLIC_KEY'],
                 'services.paystack.secret_key' => ['label' => 'Paystack Secret Key', 'type' => 'password', 'env' => 'PAYSTACK_SECRET_KEY'],
             ],
@@ -191,8 +191,9 @@ class SettingsManager extends Component
 
     /**
      * Tests the Flutterwave Client ID/Secret currently in the form — which
-     * may not be saved yet — against Flutterwave's OAuth endpoint, without
-     * persisting anything either way regardless of the result.
+     * may not be saved yet — against Flutterwave's OAuth endpoint, plus
+     * whether a webhook secret is configured, without persisting anything
+     * either way regardless of the result.
      */
     public function testFlutterwaveConnection(): void
     {
@@ -210,11 +211,20 @@ class SettingsManager extends Component
             return;
         }
 
-        $connected = app(FlutterwaveService::class)->testConnection($clientId, $clientSecret);
+        $diagnostics = app(FlutterwaveService::class)->runDiagnostics($clientId, $clientSecret);
 
-        $this->dispatch('cart-toast', message: $connected
-            ? '✓ Connected — Flutterwave accepted these credentials.'
-            : '✗ Authentication failed — check your Client ID and Secret.');
+        $this->dispatch('cart-toast', message: $diagnostics['message']);
+    }
+
+    /** The URL to register in the Flutterwave dashboard's webhook settings — shown read-only with a copy button. */
+    public function flutterwaveWebhookUrl(): string
+    {
+        return route('webhooks.flutterwave');
+    }
+
+    public function flutterwaveWebhookConfigured(): bool
+    {
+        return filled(Setting::get('services.flutterwave.webhook_secret', config('services.flutterwave.webhook_secret')));
     }
 
     public function render()

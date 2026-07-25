@@ -45,7 +45,10 @@ return [
         'encryption_key' => env('FLUTTERWAVE_ENCRYPTION_KEY'),
         'oauth_url' => env('FLUTTERWAVE_OAUTH_URL', 'https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token'),
         'base_url' => env('FLUTTERWAVE_BASE_URL', 'https://api.flutterwave.cloud/f4b/production'),
-        'webhook_secret_hash' => env('FLUTTERWAVE_WEBHOOK_SECRET_HASH'),
+        // FLUTTERWAVE_WEBHOOK_SECRET_HASH is the old name from the first V4 webhook
+        // pass — kept as a fallback so an already-configured install doesn't need
+        // to re-enter it after this rename.
+        'webhook_secret' => env('FLUTTERWAVE_WEBHOOK_SECRET', env('FLUTTERWAVE_WEBHOOK_SECRET_HASH')),
     ],
 
     'paystack' => [
