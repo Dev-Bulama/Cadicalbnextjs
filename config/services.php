@@ -35,10 +35,17 @@ return [
         ],
     ],
 
+    // V4 uses OAuth2 client-credentials (Client ID/Secret) instead of the old
+    // V3 Public/Secret Key pair. The env() fallbacks let an install upgraded
+    // from V3 keep booting without a hard crash until an admin enters real V4
+    // credentials — see FlutterwaveService::isConfigured() / testConnection().
     'flutterwave' => [
-        'public_key' => env('FLUTTERWAVE_PUBLIC_KEY'),
-        'secret_key' => env('FLUTTERWAVE_SECRET_KEY'),
+        'client_id' => env('FLUTTERWAVE_CLIENT_ID', env('FLUTTERWAVE_PUBLIC_KEY')),
+        'client_secret' => env('FLUTTERWAVE_CLIENT_SECRET', env('FLUTTERWAVE_SECRET_KEY')),
         'encryption_key' => env('FLUTTERWAVE_ENCRYPTION_KEY'),
+        'oauth_url' => env('FLUTTERWAVE_OAUTH_URL', 'https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token'),
+        'base_url' => env('FLUTTERWAVE_BASE_URL', 'https://api.flutterwave.cloud/f4b/production'),
+        'webhook_secret_hash' => env('FLUTTERWAVE_WEBHOOK_SECRET_HASH'),
     ],
 
     'paystack' => [

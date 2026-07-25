@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\FlutterwaveCheckoutController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ServicesController;
@@ -19,6 +20,8 @@ Route::get('/cart', fn () => view('cart'))->name('cart');
 // and PaymentController::verify() for how guest orders are recorded.
 Route::get('/checkout', fn () => view('checkout'))->name('checkout');
 Route::post('/checkout/verify', [PaymentController::class, 'verify'])->name('checkout.verify');
+Route::post('/checkout/flutterwave/initiate', [FlutterwaveCheckoutController::class, 'initiate'])->name('checkout.flutterwave.initiate');
+Route::get('/checkout/flutterwave/callback/{ref}', [FlutterwaveCheckoutController::class, 'callback'])->name('checkout.flutterwave.callback');
 
 Route::get('/booking', fn () => view('booking'))->name('booking');
 Route::get('/service-booking', fn () => view('service-booking'))->name('service-booking');

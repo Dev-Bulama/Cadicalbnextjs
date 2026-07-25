@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CrmWebhookController;
+use App\Http\Controllers\FlutterwaveWebhookController;
 use Illuminate\Support\Facades\Route;
 
 // Technician mobile / PWA API surface (Sanctum bearer tokens) is built out in Phase 4/5.
@@ -9,3 +10,4 @@ Route::middleware('auth:sanctum')->get('/user', function () {
 });
 
 Route::post('/crm/webhook', [CrmWebhookController::class, 'handle']);
+Route::post('/webhooks/flutterwave', [FlutterwaveWebhookController::class, 'handle']);

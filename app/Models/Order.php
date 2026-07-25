@@ -64,4 +64,42 @@ class Order extends Model
 
         return "TRK-{$random}-{$timestamp}";
     }
+
+    /**
+     * Finalizes a pending Flutterwave order as paid. Guarded by the current
+     * status so this is safe to call twice — the webhook and the customer's
+     * browser redirect back from Flutterwave's hosted checkout can both
+     * arrive and race each other; whichever gets here first wins, the
+     * second call is a no-op.
+     */
+    public function markFlutterwavePaid(): void
+    {
+        if ($this->status !== self::STATUS_PENDING) {
+            return;
+        }
+
+        $this->status = self::STATUS_PAID;
+        $this->save();
+
+        $this->trackingEvents()->create([
+            'status' => 'PAID',
+            'message' => 'Payment received and order confirmed',
+        ]);
+    }
+
+    /** @see markFlutterwavePaid() — same idempotency guard, failure path. */
+    public function markFlutterwaveFailed(): void
+    {
+        if ($this->status !== self::STATUS_PENDING) {
+            return;
+        }
+
+        $this->status = self::STATUS_CANCELLED;
+        $this->save();
+
+        $this->trackingEvents()->create([
+            'status' => 'CANCELLED',
+            'message' => 'Payment failed or was not completed',
+        ]);
+    }
 }

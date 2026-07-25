@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Setting;
+use App\Services\FlutterwaveService;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
@@ -28,9 +29,12 @@ class SettingsManager extends Component
         'payments' => [
             'label' => 'Payment Gateways',
             'fields' => [
-                'services.flutterwave.public_key' => ['label' => 'Flutterwave Public Key', 'type' => 'text', 'env' => 'FLUTTERWAVE_PUBLIC_KEY'],
-                'services.flutterwave.secret_key' => ['label' => 'Flutterwave Secret Key', 'type' => 'password', 'env' => 'FLUTTERWAVE_SECRET_KEY'],
+                // V4 replaced Flutterwave's Public/Secret Key pair with OAuth2 Client ID/Secret —
+                // see FlutterwaveService. Client Secret is stored encrypted (App\Models\Setting).
+                'services.flutterwave.client_id' => ['label' => 'Flutterwave Client ID', 'type' => 'text', 'placeholder' => 'e.g. 5a1b0439-3810-4861-857b-55e1337912f8', 'env' => 'FLUTTERWAVE_CLIENT_ID', 'hint' => 'Dashboard → Developers → API Keys → V4 Live API Keys.'],
+                'services.flutterwave.client_secret' => ['label' => 'Flutterwave Client Secret', 'type' => 'password', 'env' => 'FLUTTERWAVE_CLIENT_SECRET'],
                 'services.flutterwave.encryption_key' => ['label' => 'Flutterwave Encryption Key', 'type' => 'password', 'env' => 'FLUTTERWAVE_ENCRYPTION_KEY'],
+                'services.flutterwave.webhook_secret_hash' => ['label' => 'Flutterwave Webhook Secret Hash', 'type' => 'password', 'env' => 'FLUTTERWAVE_WEBHOOK_SECRET_HASH', 'hint' => 'Set the same value in your Flutterwave dashboard\'s webhook settings — used to verify that incoming webhook calls really are from Flutterwave.'],
                 'services.paystack.public_key' => ['label' => 'Paystack Public Key', 'type' => 'text', 'env' => 'PAYSTACK_PUBLIC_KEY'],
                 'services.paystack.secret_key' => ['label' => 'Paystack Secret Key', 'type' => 'password', 'env' => 'PAYSTACK_SECRET_KEY'],
             ],
@@ -130,6 +134,12 @@ class SettingsManager extends Component
         $fields = self::GROUPS[$this->activeGroup]['fields'];
         $configKeys = array_keys($fields);
 
+        if ($this->activeGroup === 'payments' && ! $this->flutterwaveCredentialsConsistent($configKeys)) {
+            $this->dispatch('cart-toast', message: 'Enter both a Flutterwave Client ID and Client Secret (or clear both) before saving.');
+
+            return;
+        }
+
         foreach ($this->values as $i => $value) {
             $configKey = $configKeys[$i];
             $type = $fields[$configKey]['type'] ?? 'text';
@@ -150,6 +160,61 @@ class SettingsManager extends Component
         $this->loadGroup($this->activeGroup);
 
         $this->dispatch('cart-toast', message: self::GROUPS[$this->activeGroup]['label'].' saved');
+    }
+
+    /**
+     * Blocks saving a Client ID with no Client Secret (or vice versa) —
+     * either of those left over from before, or freshly typed. A "leave
+     * blank to clear everything" state is still allowed.
+     */
+    private function flutterwaveCredentialsConsistent(array $configKeys): bool
+    {
+        $idIndex = array_search('services.flutterwave.client_id', $configKeys, true);
+        $secretIndex = array_search('services.flutterwave.client_secret', $configKeys, true);
+
+        $clientId = trim((string) ($this->values[$idIndex] ?? ''));
+        $secretTyped = trim((string) ($this->values[$secretIndex] ?? '')) !== '';
+        $secretAlreadyConfigured = $this->configured[$secretIndex] ?? false;
+        $hasSecret = $secretTyped || $secretAlreadyConfigured;
+
+        if ($clientId !== '' && ! $hasSecret) {
+            return false;
+        }
+
+        if ($clientId === '' && $hasSecret && ! $secretAlreadyConfigured) {
+            // A brand-new secret with no Client ID typed alongside it.
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Tests the Flutterwave Client ID/Secret currently in the form — which
+     * may not be saved yet — against Flutterwave's OAuth endpoint, without
+     * persisting anything either way regardless of the result.
+     */
+    public function testFlutterwaveConnection(): void
+    {
+        $configKeys = array_keys(self::GROUPS['payments']['fields']);
+        $idIndex = array_search('services.flutterwave.client_id', $configKeys, true);
+        $secretIndex = array_search('services.flutterwave.client_secret', $configKeys, true);
+
+        $clientId = trim((string) ($this->values[$idIndex] ?? '')) ?: (string) Setting::get('services.flutterwave.client_id', (string) config('services.flutterwave.client_id'));
+        $typedSecret = trim((string) ($this->values[$secretIndex] ?? ''));
+        $clientSecret = $typedSecret !== '' ? $typedSecret : (string) Setting::get('services.flutterwave.client_secret', (string) config('services.flutterwave.client_secret'));
+
+        if ($clientId === '' || $clientSecret === '') {
+            $this->dispatch('cart-toast', message: 'Enter both a Client ID and Client Secret before testing.');
+
+            return;
+        }
+
+        $connected = app(FlutterwaveService::class)->testConnection($clientId, $clientSecret);
+
+        $this->dispatch('cart-toast', message: $connected
+            ? '✓ Connected — Flutterwave accepted these credentials.'
+            : '✗ Authentication failed — check your Client ID and Secret.');
     }
 
     public function render()
