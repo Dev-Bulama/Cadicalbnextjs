@@ -93,7 +93,7 @@
                                 <span x-show="copied" x-cloak>Copied!</span>
                             </button>
                         </div>
-                        <p class="text-[11px] text-slate-400 mt-1">Paste this into your Flutterwave dashboard's webhook settings, alongside the Webhook Secret above.</p>
+                        <p class="text-[11px] text-slate-400 mt-1">Paste this into your Flutterwave dashboard under Settings → Webhooks (not the API Keys page), alongside the Secret Hash — which must match the Webhook Secret field above.</p>
                     </div>
 
                     <div class="flex items-center gap-3">

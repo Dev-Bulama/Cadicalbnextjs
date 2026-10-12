@@ -27,6 +27,15 @@ Both of these are set at **/admin/settings → Payment Gateways** (or via `.env`
 | Flutterwave Client ID / Client Secret | OAuth2 credentials used to call Flutterwave's API (`FlutterwaveService`) |
 | Flutterwave Webhook Secret | Shared secret used to verify that an incoming webhook call actually came from Flutterwave |
 
+The Client ID, Client Secret, and Encryption Key all come from Flutterwave's
+**Dashboard → Developers → API Keys** page. The Webhook Secret does **not** — that page
+never shows one. It's a value *you* invent, entered on a separate page:
+**Dashboard → Settings → Webhooks**, where you also register the webhook URL above and set
+your own string as the "Secret Hash." Flutterwave then signs every webhook it sends you
+with that same string (see "Required headers" below), so whatever you type into the
+Webhook Secret field here must exactly match what you typed into that Secret Hash field
+there — neither side issues it to the other.
+
 The **Test Flutterwave Connection** button on that page checks both: it fetches a live
 OAuth token with the credentials currently in the form (whether saved or not), and checks
 whether a webhook secret is configured, then reports one of:

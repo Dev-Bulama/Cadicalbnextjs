@@ -32,9 +32,9 @@ class SettingsManager extends Component
                 // V4 replaced Flutterwave's Public/Secret Key pair with OAuth2 Client ID/Secret —
                 // see FlutterwaveService. Client Secret is stored encrypted (App\Models\Setting).
                 'services.flutterwave.client_id' => ['label' => 'Flutterwave Client ID', 'type' => 'text', 'placeholder' => 'e.g. 5a1b0439-3810-4861-857b-55e1337912f8', 'env' => 'FLUTTERWAVE_CLIENT_ID', 'hint' => 'Dashboard → Developers → API Keys → V4 Live API Keys.'],
-                'services.flutterwave.client_secret' => ['label' => 'Flutterwave Client Secret', 'type' => 'password', 'env' => 'FLUTTERWAVE_CLIENT_SECRET'],
-                'services.flutterwave.encryption_key' => ['label' => 'Flutterwave Encryption Key', 'type' => 'password', 'env' => 'FLUTTERWAVE_ENCRYPTION_KEY'],
-                'services.flutterwave.webhook_secret' => ['label' => 'Flutterwave Webhook Secret', 'type' => 'password', 'env' => 'FLUTTERWAVE_WEBHOOK_SECRET', 'hint' => 'Set the same value in your Flutterwave dashboard\'s webhook settings — used to verify that incoming webhook calls really are from Flutterwave.'],
+                'services.flutterwave.client_secret' => ['label' => 'Flutterwave Client Secret', 'type' => 'password', 'env' => 'FLUTTERWAVE_CLIENT_SECRET', 'hint' => 'Also on the API Keys page, next to the Client ID.'],
+                'services.flutterwave.encryption_key' => ['label' => 'Flutterwave Encryption Key', 'type' => 'password', 'env' => 'FLUTTERWAVE_ENCRYPTION_KEY', 'hint' => 'Also on the API Keys page. Not related to webhooks — see the Webhook Secret field below for that.'],
+                'services.flutterwave.webhook_secret' => ['label' => 'Flutterwave Webhook Secret', 'type' => 'password', 'env' => 'FLUTTERWAVE_WEBHOOK_SECRET', 'hint' => 'Not on the API Keys page — Flutterwave doesn\'t issue this one. You make it up: go to Dashboard → Settings → Webhooks, paste the Webhook URL shown below, and set any random string as the "Secret Hash". Enter that same string here.'],
                 'services.paystack.public_key' => ['label' => 'Paystack Public Key', 'type' => 'text', 'env' => 'PAYSTACK_PUBLIC_KEY'],
                 'services.paystack.secret_key' => ['label' => 'Paystack Secret Key', 'type' => 'password', 'env' => 'PAYSTACK_SECRET_KEY'],
             ],
