@@ -108,7 +108,10 @@ class FlutterwaveService
             ]);
 
             if (! $response->successful()) {
-                Log::channel('flutterwave')->warning('Flutterwave OAuth token request failed', ['status' => $response->status()]);
+                Log::channel('flutterwave')->warning('Flutterwave OAuth token request failed', [
+                    'status' => $response->status(),
+                    'response' => $response->json() ?? $response->body(),
+                ]);
 
                 return null;
             }
@@ -276,7 +279,16 @@ class FlutterwaveService
             }
 
             if (! $response->successful()) {
-                Log::channel('flutterwave')->warning('Flutterwave API request failed', ['path' => $path, 'status' => $response->status()]);
+                // The status alone ("422") tells an admin nothing actionable — Flutterwave's
+                // response body carries the actual reason (unverified merchant account,
+                // disabled currency, invalid redirect_url domain, etc.), so log it too. This
+                // is Flutterwave's own response to OUR request, not anything submitted by a
+                // customer, so it's safe to log in full.
+                Log::channel('flutterwave')->warning('Flutterwave API request failed', [
+                    'path' => $path,
+                    'status' => $response->status(),
+                    'response' => $response->json() ?? $response->body(),
+                ]);
 
                 return null;
             }
